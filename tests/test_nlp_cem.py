@@ -16,6 +16,9 @@ import logging
 import unittest
 
 from chemdataextractor.doc import Span, Document
+from chemdataextractor.doc.text import Cell
+from chemdataextractor.model import BaseModel, StringType, ModelType, Compound
+from chemdataextractor.parse.elements import I
 from chemdataextractor.nlp.cem import CiDictCemTagger, CrfCemTagger, CemTagger
 
 logging.basicConfig(level=logging.DEBUG)
@@ -67,6 +70,11 @@ class TestCemDictionaryTagger(unittest.TestCase):
             )
 
 
+# Simple class contianing just a specifier and compound (for testing)
+class Dye(BaseModel):
+    specifier = StringType(parse_expression=I('dye'), required=True, contextual=False)
+    compound = ModelType(Compound, required=True)
+
 class TestCemTagger(unittest.TestCase):
     """Test combined CemTagger."""
 
@@ -88,6 +96,14 @@ class TestCemTagger(unittest.TestCase):
         self.assertEqual([Span('benzene', 0, 7)], Document('benzene-aromatic').cems)
         self.assertEqual([], Document('-aromatic').cems)
         self.assertEqual([], Document('non-aromatic').cems)
+
+    def test_cell_spacer_resolved(self):
+        """Test that the Cem Tagger corrects for the cell spacer (sdfkljlk) when it is identified as a CEM"""
+
+        tokens = ['N719', ['1T–MoS2 (hydrothermal, 180 °C)'], ['Dye']]
+        cell = Cell.from_tdecell(tokens, models=[Dye])
+        self.assertEqual(cell.tagged_tokens[1][0], 'sdfkljlk')
+        self.assertEqual(cell.tagged_tokens[1][1], 'NN')
 
 
 # TODO: Test entity recognition on a sentence containing a generic abbreviation that is only picked up through its definition

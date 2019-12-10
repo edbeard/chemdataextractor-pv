@@ -557,6 +557,11 @@ class CemTagger(BaseTagger):
             token, pos = tokens[i]
             lex = self.lexicon[token]
             nexttag = tags[i+1] if i < len(tags) - 1 else None
+            # Reclassify any instance found to be the cell spacer (sdfkljlk)
+            if (tag == 'B-CM' or tag == 'I-CM') and token == 'sdfkljlk':
+                tags[i] = None
+                if nexttag == 'I-CM':
+                    tags[i+1] = 'B-CM'
             # Trim disallowed first tokens
             if tag == 'B-CM' and lex.lower in STRIP_START:
                 tags[i] = None
