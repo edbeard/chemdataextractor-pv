@@ -28,7 +28,7 @@ magnitudes_dict = {R('c(enti)?', group=0): -2.,
                   R('G(iga)?', group=0): 9.,
                   R('T(era)?', group=0): 12.,
                   R('m(illi)?', group=0): -3.,
-                  R('µ|(micro)|(mu)', group=0): -6.,
+                  R('[μµ𝛍𝜇𝝁𝝻𝞵μ]|(micro)|(mu)', group=0): -6.,
                   R('n(ano)?', group=0): -9.,
                   R('p(ico)?', group=0): -12.}
 
@@ -56,7 +56,7 @@ _open_bracket_pattern = re.compile('/\(')
 # A regex pattern to match a unit being divided by another
 _division_pattern = re.compile('[/]\D*')
 # A regex pattern containing all the shorthand single letter magnitude indicators, that could be misconstrued as units
-_magnitude_indicators = re.compile('[pnµmTGMkc]')
+_magnitude_indicators = re.compile('[pnμµ𝛍𝜇𝝁𝝻𝞵μmTGMkc]')
 
 
 def value_element(units=(OneOrMore(T('NN')) | OneOrMore(T('NNP')) | OneOrMore(T('NNPS')) | OneOrMore(T('NNS')))('raw_units').add_action(merge)):
