@@ -314,6 +314,7 @@ class AutoTableParser(BaseAutoParser, BaseTableParser):
     def __init__(self, chem_name=(cem | chemical_label | lenient_chemical_label)):
         super(AutoTableParser, self).__init__()
         self.chem_name = chem_name
+
     @property
     def root(self):
         # is always found, our models currently rely on the compound
@@ -360,3 +361,297 @@ class AutoTableParser(BaseAutoParser, BaseTableParser):
         combined_entities = create_entities_list(entities)
         root_phrase = OneOrMore(combined_entities + Optional(SkipTo(combined_entities)))('root_phrase')
         return root_phrase
+
+
+class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
+
+    def __init__(self, lenient=False, chem_name=(cem | chemical_label | lenient_chemical_label)):
+        super(AutoSentenceParserOptionalCompound, self).__init__()
+        self.lenient = lenient
+        self.chem_name = chem_name
+
+    @property
+    def trigger_phrase(self):
+        # Generalised case of trigger_phrase. We go through the fields of the model and
+        # try to find one that is both required and not contextual, and remember the name
+        # of that field so that the trigger_phrase will be that parse expression next time it's called
+        # If none of these are found, trigger_property is set to False, and None is returned.
+        if self._trigger_property is False:
+            return None
+        elif self._trigger_property is not None:
+            return self.model.fields[self._trigger_property].parse_expression
+        else:
+            for field_name, field in six.iteritems(self.model.fields):
+                if field.required and not field.contextual:
+                    self._trigger_property = field_name
+                    return self.model.fields[self._trigger_property].parse_expression
+            if self._trigger_property is None:
+                self._trigger_property = False
+                return None
+
+    @property
+    def root(self):
+
+        entities = []
+        if hasattr(self.model, 'dimensions') and not self.model.dimensions:
+            # the mandatory elements of Dimensionless model are grouped into a entities list
+            specifier = self.model.specifier.parse_expression('specifier')
+            value_phrase = value_element_plain()
+            entities.append(specifier)
+            entities.append(value_phrase)
+
+        elif hasattr(self.model, 'dimensions') and self.model.dimensions:
+            # the mandatory elements of Quantity model are grouped into a entities list
+            # print(self.model, self.model.dimensions)
+            unit_element = Group(
+                construct_unit_element(self.model.dimensions).with_condition(match_dimensions_of(self.model))('raw_units'))
+            specifier = self.model.specifier.parse_expression('specifier')
+            if self.lenient:
+                value_phrase = (value_element(unit_element) | value_element_plain())
+            else:
+                value_phrase = value_element(unit_element)
+
+            entities.append(specifier)
+            entities.append(value_phrase)
+
+        elif hasattr(self.model, 'raw_value'):
+            # Mandatory elements for cases where the specifier indicates a value that is not a quantity,
+            # but the value is identified by a single parse_expression
+            specifier = self.model.specifier.parse_expression('specifier')
+            value_phrase = self.model.raw_value.parse_expression('raw_value') # I('N719')('raw_value')
+            entities.append(value_phrase)
+            entities.append(specifier)
+
+        elif hasattr(self.model, 'specifier'):
+            # now we are parsing an element that has no value but some custom string
+            # therefore, there will be no matching interpret function, all entities are custom except for the specifier
+            specifier = self.model.specifier.parse_expression('specifier')
+            entities.append(specifier)
+
+        # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
+        for field in self.model.fields:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier']:
+                if self.model.__getattribute__(self.model, field).parse_expression is not None:
+                    entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
+
+        # logic for finding all the elements in any order
+        combined_entities = create_entities_list(entities)
+        root_phrase = OneOrMore(combined_entities + Optional(SkipTo(combined_entities)))('root_phrase')
+        return root_phrase
+
+    def interpret(self, result, start, end):
+        # print(etree.tostring(result))
+        if result is None:
+            return
+        requirements = True
+        property_entities = {}
+
+        if hasattr(self.model, 'dimensions') and not self.model.dimensions:
+            # the specific entities of a DimensionlessModel are retrieved explicitly and packed into a dictionary
+            raw_value = first(result.xpath('./raw_value/text()'))
+            log.debug(raw_value)
+            if not raw_value and self.model.fields['raw_value'].required and not self.model.fields['raw_value'].contextual:
+                requirements = False
+            if raw_value != 'NoValue':
+                value = self.extract_value(raw_value)
+            else:
+                value = None
+            error = self.extract_error(raw_value)
+            property_entities.update({"raw_value": raw_value,
+                                      "value": value,
+                                      "error": error})
+
+        elif hasattr(self.model, 'dimensions') and self.model.dimensions:
+            # the specific entities of a QuantityModel are retrieved explicitly and packed into a dictionary
+            raw_value = first(result.xpath('./raw_value/text()'))
+            if not raw_value and self.model.fields['raw_value'].required and not self.model.fields['raw_value'].contextual:
+                requirements = False
+            raw_units = first(result.xpath('./raw_units/text()'))
+            if raw_value != 'NoValue':
+                value = self.extract_value(raw_value)
+            else:
+                value = None
+            error = self.extract_error(raw_value)
+            units = None
+            try:
+                units = self.extract_units(raw_units, strict=True)
+            except TypeError as e:
+                log.debug(e)
+
+            property_entities.update({"raw_value": raw_value,
+                                      "raw_units": raw_units,
+                                      "value": value,
+                                      "error": error,
+                                      "units": units})
+
+        elif hasattr(self.model, 'raw_value'):
+
+            raw_value = first(result.xpath('./raw_value/text()'))
+
+            log.debug(raw_value)
+            property_entities.update({"raw_value": raw_value})
+
+        for field_name, field in six.iteritems(self.model.fields):
+            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error']:
+                try:
+                    data = self._get_data(field_name, field, result)
+                    if data is not None:
+                        property_entities.update(data)
+                # if field is required, but empty, the requirements have not been met
+                except TypeError as e:
+                    log.debug(self.model)
+                    log.debug(e)
+                    requirements = False
+
+        model_instance = self.model(**property_entities)
+
+        if requirements:
+            # records the parser that was used to generate this record, can be used for evaluation
+            model_instance.record_method = self.__class__.__name__
+            yield model_instance
+
+
+class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
+    """ A test class to try automatic parsing where there is not always a compound"""
+
+    def __init__(self, chem_name=((cem | chemical_label | lenient_chemical_label))):
+        super(AutoTableParserOptionalCompound, self).__init__()
+        self.chem_name = chem_name
+
+    @property
+    def root(self):
+        entities = []
+        chem_name = None
+
+        # Check if compound detected
+        if hasattr(self.model, 'compound'):
+            chem_name = self.chem_name
+            compound_model = self.model.compound.model_class
+            labels = compound_model.labels.parse_expression('labels')
+            entities.append(labels)
+
+        no_value_element = W('NoValue')('raw_value')
+
+        # Check if exponent detected
+        if hasattr(self.model, 'exponent'):
+            exponent = self.model.exponent.parse_expression('exponent')
+            entities.append(exponent)
+
+        if hasattr(self.model, 'dimensions') and not self.model.dimensions:
+            # the mandatory elements of Dimensionless model are grouped into a entities list
+            specifier = self.model.specifier.parse_expression('specifier')
+            value_phrase = value_element_plain() | no_value_element
+            entities.append(specifier)
+            entities.append(value_phrase)
+
+        elif hasattr(self.model, 'dimensions') and self.model.dimensions:
+            # the mandatory elements of Quantity model are grouped into a entities list
+            unit_element = Group(
+                construct_unit_element(self.model.dimensions).with_condition(match_dimensions_of(self.model))('raw_units'))
+            specifier = self.model.specifier.parse_expression('specifier') + Optional(W('/') | W(',') | T(',')) + Optional(
+                unit_element)
+            value_phrase = ((value_element_plain() | no_value_element) + Optional(unit_element))
+            entities.append(specifier)
+            entities.append(value_phrase)
+
+        elif hasattr(self.model, 'raw_value'):
+            # Mandatory elements for cases where the specifier indicates a value that is not a quantity,
+            # but the value is identified by a single parse_expression
+            specifier = self.model.specifier.parse_expression('specifier')
+            value_phrase = self.model.raw_value.parse_expression('raw_value')
+
+            entities.append(specifier)
+            entities.append(value_phrase)
+
+        elif hasattr(self.model, 'specifier'):
+            # now we are parsing an element that has no value but some custom string
+            # therefore, there will be no matching interpret function, all entities are custom except for the specifier
+            specifier = self.model.specifier.parse_expression('specifier')
+            entities.append(specifier)
+
+        # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
+        for field in self.model.fields:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent', 'compound']:
+                if self.model.__getattribute__(self.model, field).parse_expression is not None:
+                    entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
+
+        # the chem_name has to be parsed last in order to avoid a conflict with other elements of the model
+        if chem_name:
+            entities.append(chem_name)
+
+        # logic for finding all the elements in any order
+        combined_entities = create_entities_list(entities)
+        root_phrase = OneOrMore(combined_entities + Optional(SkipTo(combined_entities)))('root_phrase')
+        return root_phrase
+
+    def interpret(self, result, start, end):
+        if result is None:
+            return
+        requirements = True
+        property_entities = {}
+
+        if hasattr(self.model, 'dimensions') and not self.model.dimensions:
+            # the specific entities of a DimensionlessModel are retrieved explicitly and packed into a dictionary
+            raw_value = first(result.xpath('./raw_value/text()'))
+            log.debug(raw_value)
+            if not raw_value and self.model.fields['raw_value'].required and not self.model.fields['raw_value'].contextual:
+                requirements = False
+            if raw_value != 'NoValue':
+                value = self.extract_value(raw_value)
+            else:
+                value = None
+            error = self.extract_error(raw_value)
+            property_entities.update({"raw_value": raw_value,
+                                      "value": value,
+                                      "error": error})
+
+        elif hasattr(self.model, 'dimensions') and self.model.dimensions:
+            # the specific entities of a QuantityModel are retrieved explicitly and packed into a dictionary
+            raw_value = first(result.xpath('./raw_value/text()'))
+            if not raw_value and self.model.fields['raw_value'].required and not self.model.fields['raw_value'].contextual:
+                requirements = False
+            raw_units = first(result.xpath('./raw_units/text()'))
+            if raw_value != 'NoValue':
+                value = self.extract_value(raw_value)
+            else:
+                value = None
+            error = self.extract_error(raw_value)
+            units = None
+            try:
+                units = self.extract_units(raw_units, strict=True)
+            except TypeError as e:
+                log.debug(e)
+
+            property_entities.update({"raw_value": raw_value,
+                                      "raw_units": raw_units,
+                                      "value": value,
+                                      "error": error,
+                                      "units": units})
+        elif hasattr(self.model, 'raw_value'):
+
+            raw_value = first(result.xpath('./raw_value/text()'))
+
+            if not raw_value and self.model.fields['raw_value'].required and not self.model.fields['raw_value'].contextual:
+                requirements = False
+            log.debug(raw_value)
+            property_entities.update({"raw_value": raw_value})
+
+        for field_name, field in six.iteritems(self.model.fields):
+            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error']:
+                try:
+                    data = self._get_data(field_name, field, result)
+                    if data is not None:
+                        property_entities.update(data)
+                # if field is required, but empty, the requirements have not been met
+                except TypeError as e:
+                    log.debug(self.model)
+                    log.debug(e)
+                    requirements = False
+
+        model_instance = self.model(**property_entities)
+
+        if requirements:
+            # records the parser that was used to generate this record, can be used for evaluation
+            model_instance.record_method = self.__class__.__name__
+            yield model_instance
+

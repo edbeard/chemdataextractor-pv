@@ -14,11 +14,12 @@ from __future__ import unicode_literals
 import logging
 import unittest
 
-from chemdataextractor.model import Compound, MeltingPoint, UvvisSpectrum, UvvisPeak, Apparatus, BaseModel
+from chemdataextractor.model import Compound, MeltingPoint, UvvisSpectrum, Apparatus, BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor, PowerConversionEfficiency
 from chemdataextractor.model.units.temperature import TemperatureModel
-from chemdataextractor.parse.elements import I, W
+from chemdataextractor.parse.elements import I
 from chemdataextractor.model.base import StringType, ModelType
-from chemdataextractor.doc.text import Sentence
+from chemdataextractor.doc.text import Sentence, Caption
+from chemdataextractor.doc.table import Table
 from chemdataextractor.parse.auto import AutoSentenceParser
 from chemdataextractor.doc import Document
 from lxml import etree
@@ -183,6 +184,54 @@ class TestModel(unittest.TestCase):
         self.assertFalse(b_list[3].is_subset(b_list[2]))
         self.assertTrue(b_list[2].is_subset(b_list[3]))
         self.assertFalse(b_list[2].is_subset(b_list[0]))
+
+
+class TestPhotovoltaicDeviceModel(unittest.TestCase):
+
+    def do_table_cell(self, cell_list, expected, model):
+        logging.basicConfig(level=logging.DEBUG)
+        table = Table(caption=Caption(""),
+                      table_data=cell_list,
+                      models=[model])
+        output = []
+        for record in table.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_open_circuit_voltage_table(self):
+        input = [['Dye', 'Voc (V)'], ['N719', '0.89']]
+        expected = [{'OpenCircuitVoltage': {'raw_units': '(V)',
+                         'raw_value': '0.89',
+                         'specifier': 'Voc',
+                         'units': 'Volt^(1.0)',
+                         'value': [0.89]}}]
+
+        self.do_table_cell(input, expected, OpenCircuitVoltage)
+
+    def test_short_circuit_current_density_table(self):
+        input = [['Dye', 'Jsc (mAcm-2)'], ['N719', '7.53']]
+        expected = [{'ShortCircuitCurrentDensity': {'raw_units': '(mAcm-2)',
+                                 'raw_value': '7.53',
+                                 'specifier': 'Jsc',
+                                 'units': '(10^1.0) * Ampere^(1.0)  '
+                                          'Meter^(-2.0)',
+                                 'value': [7.53]}}]
+
+        self.do_table_cell(input, expected, ShortCircuitCurrentDensity)
+
+    def test_power_conversion_efficiency_table(self):
+        input = [['Dye', 'PCE (%)'], ['N719', '7.50']]
+        expected = [{'PowerConversionEfficiency': {'raw_value': '7.50', 'raw_units': '(%)', 'value': [7.5],
+                                                   'units': 'Percent^(1.0)', 'specifier': 'PCE'}}]
+
+        self.do_table_cell(input, expected, PowerConversionEfficiency)
+
+    def test_fill_factor_table(self):
+        input = [['Dye', 'FF '], ['N719', '55']]
+        expected = [{'FillFactor': {'raw_value': '55', 'value': [55.0], 'specifier': 'FF'}}]
+
+        self.do_table_cell(input, expected, FillFactor)
+
 
 
 if __name__ == '__main__':
