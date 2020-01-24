@@ -103,19 +103,32 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
         self.do_table_cell(input, expected, CounterElectrode)
 
-    # def test_counter_electrodes_table_2(self):
-    #     input = [['CEs', 'Voc'], ['CBSi3N4-1%', '0.71 ± 0.02'], ['CBSi3N4-3%', '0.74 ± 0.01']]
-    #     expected = [{'CounterElectrode': {'specifier': 'CEs', 'raw_value': 'CBSi3N4-1 %'}},
-    #                 {'CounterElectrode': {'specifier': 'CEs', 'raw_value': 'CBSi3N4-3 %'}},
-    #                 {'OpenCircuitVoltage': {'raw_value': '0.71 ± 0.02', 'value': [0.71], 'error': 0.02, 'specifier': 'Voc'}},
-    #                 {'OpenCircuitVoltage': {'raw_value': '0.74 ± 0.01', 'value': [0.74], 'error': 0.01, 'specifier': 'Voc'}},
-    #                 {'PhotovoltaicCell': {'voc': {'OpenCircuitVoltage': {'raw_value': '0.71 ± 0.02', 'value': [0.71], 'error': 0.02, 'specifier': 'Voc'}},
-    #                                       'counter_electrode': {'CounterElectrode': {'specifier': 'CEs', 'raw_value': 'CBSi3N4-1 %'}}}},
-    #                 {'PhotovoltaicCell': {'voc': {'OpenCircuitVoltage': {'raw_value': '0.74 ± 0.01', 'value': [0.74], 'error': 0.01, 'specifier': 'Voc'}},
-    #                                       'counter_electrode': {'CounterElectrode': {'specifier': 'CEs', 'raw_value': 'CBSi3N4-1 %'}}}},
-    #                 {'PhotovoltaicCell': {'counter_electrode': {'CounterElectrode': {'specifier': 'CEs', 'raw_value': 'CBSi3N4-3 %'}}}}]
-    #
-    #     self.do_table_cell(input, expected, PhotovoltaicCell)
+    def test_counter_electrodes_table_2(self):
+        input = [['CEs', 'Voc'], ['CBSi3N4-1%', '0.71 ± 0.02'], ['CBSi3N4-3%', '0.74 ± 0.01']]
+        expected =  [{'CounterElectrode': {'raw_value': 'CBSi3N4-1 %', 'specifier': 'CEs'}},
+                     {'CounterElectrode': {'raw_value': 'CBSi3N4-3 %', 'specifier': 'CEs'}},
+                     {'OpenCircuitVoltage': {'error': 0.02,
+                                             'raw_value': '0.71 ± 0.02',
+                                             'specifier': 'Voc',
+                                             'value': [0.71]}},
+                     {'OpenCircuitVoltage': {'error': 0.01,
+                                             'raw_value': '0.74 ± 0.01',
+                                             'specifier': 'Voc',
+                                             'value': [0.74]}},
+                     {'PhotovoltaicCell': {'counter_electrode': {'CounterElectrode': {'raw_value': 'CBSi3N4-1 %',
+                                                                                      'specifier': 'CEs'}},
+                                           'voc': {'OpenCircuitVoltage': {'error': 0.02,
+                                                                          'raw_value': '0.71 ± 0.02',
+                                                                          'specifier': 'Voc',
+                                                                          'value': [0.71]}}}},
+                     {'PhotovoltaicCell': {'counter_electrode': {'CounterElectrode': {'raw_value': 'CBSi3N4-3 %',
+                                                                                      'specifier': 'CEs'}},
+                                           'voc': {'OpenCircuitVoltage': {'error': 0.01,
+                                                                          'raw_value': '0.74 ± 0.01',
+                                                                          'specifier': 'Voc',
+                                                                          'value': [0.74]}}}}]
+
+        self.do_table_cell(input, expected, PhotovoltaicCell)
 
     def test_semiconductor_table(self):
         input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm']]

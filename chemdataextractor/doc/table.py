@@ -227,7 +227,7 @@ class Table(CaptionedElement):
         if '' in row_first.keys():
             for model in row_first[''].models:
                 if hasattr(model, 'raw_value') and model.raw_value is not None:
-                    key = ' '.join(model.raw_value)
+                    key = ' '.join(model.raw_value.replace(' ', ''))
                     if key in row_first.keys():
                         model.table_row_category = key
                         row_first[key].models.insert(0, model)
