@@ -19,8 +19,8 @@ import re
 from chemdataextractor.doc.text import Text, Sentence
 from chemdataextractor.nlp.tokenize import WordTokenizer, ChemWordTokenizer, FineWordTokenizer
 from chemdataextractor.parse import R
-from chemdataextractor.model import QuantityModel
 from chemdataextractor.model.units import Dimension, Unit
+from chemdataextractor.model.units.quantity_model import QuantityModel
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)

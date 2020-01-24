@@ -16,10 +16,10 @@ import unittest
 import os
 
 from chemdataextractor.doc.document import Document
-from chemdataextractor.doc.text import Paragraph, Title, Heading, Caption, Footnote
+from chemdataextractor.doc.text import Paragraph, Title, Heading, Caption, Footnote, Cell
 from chemdataextractor.config import Config
-from chemdataextractor.model import Compound, NmrSpectrum, IrSpectrum, UvvisSpectrum, MeltingPoint, GlassTransition
 from chemdataextractor.nlp import *
+from chemdataextractor.model.pv_model import Dye
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -80,3 +80,11 @@ class TestText(unittest.TestCase):
         self.assertEqual(type(title.lexicon), ChemLexicon)
         self.assertEqual(type(title.sentence_tokenizer), ChemSentenceTokenizer)
         self.assertEqual(type(title.word_tokenizer), ChemWordTokenizer)
+
+    def test_tde_spacer_not_CEM(self):
+
+        tokens = ['N719', ['1T–MoS2 (hydrothermal, 180 °C)'], ['Dye']]
+        cell = Cell.from_tdecell(tokens, models=[Dye])
+        tokens = [cell for cell in cell.tagged_tokens if cell[0] =='sdfkljlk']
+        for token in tokens:
+            self.assertEqual(token[1], 'NN')

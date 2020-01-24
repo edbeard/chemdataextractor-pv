@@ -7,6 +7,9 @@ Test autoparser functionality
 
 Taketomo Isazawa (ti250@cam.ac.uk)
 
+Test autoparsers with optional compound
+Ed Beard (ejb207@cam.ac.uk)
+
 """
 
 from __future__ import absolute_import
@@ -33,6 +36,10 @@ from chemdataextractor.parse.quantity import value_element_plain
 from chemdataextractor.doc.text import Sentence
 from chemdataextractor.parse.elements import I
 from chemdataextractor.model import Compound, ModelType, StringType
+from chemdataextractor.doc.table import Table
+from chemdataextractor.doc.text import Caption
+from chemdataextractor.model.pv_model import OpenCircuitVoltage
+
 from lxml import etree
 
 logging.basicConfig(level=logging.DEBUG)
@@ -161,3 +168,23 @@ class TestAutoSentenceParser(unittest.TestCase):
                                     'units': '(10^3.0) * Hour^(-1.0)  Meter^(1.0)', 'specifier': 'speed',
                                     'compound': {'Compound': {'names': ['CH3']}}}}]
         self.assertEqual(found_records, expected)
+
+
+class TestAutoTableParserOptionalCompound(unittest.TestCase):
+
+    def do_table_cell(self, cell_list, expected, model):
+        logging.basicConfig(level=logging.DEBUG)
+        table = Table(caption=Caption(""),
+                      table_data=cell_list,
+                      models=[model])
+        output = []
+        for record in table.records:
+            output.append(record.serialize())
+        print(output)
+        self.assertEqual(output, expected)
+
+    def test_units_after_comma(self):
+        input = [['Ionic Liquid','VOC, V'], ['N719', '0.659']]
+        expected = [{'OpenCircuitVoltage': {'raw_value': '0.659', 'raw_units': 'V', 'value': [0.659], 'units': 'Volt^(1.0)', 'specifier': 'VOC'}}]
+
+        self.do_table_cell(input, expected, OpenCircuitVoltage)

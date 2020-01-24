@@ -9,8 +9,10 @@ from chemdataextractor.doc.table import Table
 from chemdataextractor.model import TemperatureModel, StringType, Compound, ModelType, DimensionlessModel
 from chemdataextractor.parse.cem import CompoundParser, CompoundHeadingParser, ChemicalLabelParser, CompoundTableParser
 from chemdataextractor.model.units.energy import EnergyModel
-from chemdataextractor.parse import W, R
-from chemdataextractor.parse.auto import AutoTableParser
+from chemdataextractor.model.pv_model import OpenCircuitVoltage, ShortCircuitCurrentDensity, FillFactor, PowerConversionEfficiency, Dye
+from chemdataextractor.model.model import BaseModel
+from chemdataextractor.parse import W, R, Any
+from chemdataextractor.parse.auto import AutoTableParser, AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound
 
 import logging
 import unittest
@@ -243,6 +245,34 @@ class TestNestedTable(unittest.TestCase):
             {'CurieTemperature': {'raw_value': '286', 'raw_units': '(K)', 'value': [286.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'reference': {'Reference': {'raw_value': '286', 'value': [286.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '1', 'raw_units': '(kJ)', 'value': [1.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}}}}}}}
         ]
         self.do_table(expected)
+
+
+# DEFINE A SIMPLE PV PARSER
+class SimplePhotovoltaicDevice(BaseModel):
+    specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
+
+    voc = ModelType(OpenCircuitVoltage, required=False, contextual=False)
+    ff = ModelType(FillFactor, required=False, contextual=False)
+    pce = ModelType(PowerConversionEfficiency, required=False, contextual=False)
+    jsc = ModelType(ShortCircuitCurrentDensity, required=False, contextual=False)
+    dye = ModelType(Dye, required=False, contextual=False)
+
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+
+class TestNestedTablePVCell(unittest.TestCase):
+    """ Testing complex nested tables for photovoltaic tables"""
+
+    def test_LH_column_merging(self):
+        """This test ensures that the LH column in a table gets merges when appropriate"""
+
+        table_input = [['Dye',	'Jsc (mA cm−2)', 'Voc (V)', 'FF', 'PCE'], ['DPTP', '11.11', '22.22', '33.33', '44.44'], ['N719','55.55','66.66', '77.77', '88.88']]
+        table = Table(caption=Caption(''), table_data=table_input, models=[SimplePhotovoltaicDevice])
+
+        expected_1 = {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '22.22', 'raw_units': '(V)', 'value': [22.22], 'units': 'Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '33.33', 'value': [33.33], 'specifier': 'FF'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '44.44', 'value': [44.44], 'specifier': 'PCE'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '11.11', 'raw_units': '(mAcm−2)', 'value': [11.11], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'DPTP'}}}}
+        expected_2 = {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '66.66', 'raw_units': '(V)', 'value': [66.66], 'units': 'Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '77.77', 'value': [77.77], 'specifier': 'FF'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '88.88', 'value': [88.88], 'specifier': 'PCE'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '55.55', 'raw_units': '(mAcm−2)', 'value': [55.55], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}}}
+
+        self.assertEqual(expected_1, table.records[-2].serialize())
+        self.assertEqual(expected_2, table.records[-1].serialize())
 
 
 if __name__ == '__main__':

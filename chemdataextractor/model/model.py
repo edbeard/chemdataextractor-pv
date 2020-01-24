@@ -12,9 +12,6 @@ import logging
 import six
 
 from .base import BaseModel, StringType, ListType, ModelType
-from .units.current_density import CurrentDensityModel
-from .units.electric_potential import ElectricPotentialModel
-from .units.ratio import RatioModel
 from .units.temperature import TemperatureModel
 from .units.length import LengthModel
 from ..parse.cem import CompoundParser, CompoundHeadingParser, ChemicalLabelParser, CompoundTableParser, names_only, roles_only
@@ -23,11 +20,11 @@ from ..parse.mp_new import MpParser
 from ..parse.nmr import NmrParser
 from ..parse.tg import TgParser
 from ..parse.uvvis import UvvisParser
-from ..parse.elements import R, I, Optional, W, Group, NoMatch, Any, Start, SkipTo
+from ..parse.elements import R, I, Optional, W, Group, NoMatch
 from ..parse.actions import merge, join
 
-from ..model.units.quantity_model import QuantityModel, DimensionlessModel
-from ..parse.auto import AutoTableParser, AutoSentenceParser, AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound
+from ..model.units.quantity_model import DimensionlessModel
+from ..parse.auto import AutoTableParser, AutoSentenceParser
 from ..parse.apparatus import ApparatusParser
 
 log = logging.getLogger(__name__)
@@ -268,77 +265,3 @@ class CNLabel(BaseModel):
     compound = ModelType(Compound, required=False)
     parsers = [AutoSentenceParser(), AutoTableParser()]
 
-# Models for Photovoltaic Properties
-common_substrates = (
-    W('FTO') | (I('flourine') + Optional(I('doped')) + I('tin') + I('oxide')) |
-    W('ITO') | (I('indium') + Optional(I('doped')) + I('tin') + I('oxide')) |
-    I('glass') |
-    W('NiO') | (I('nickel') + I('oxide'))
-).add_action(join)
-
-common_spectra = (
-    I('AM') + (
-        I('1.5G') |
-        I('1.5')
-    ) |
-    I('AM1.5G')
-).add_action(join)
-
-common_semiconductors = (
-    (W('TiO2') | (I('titanium') + I('dioxide')) | I('titania') |
-     W('ZnO') | (I('zinc') + I('oxide')) |
-     W('NiO') | (I('nickel') + I('oxide')) |
-     W('Zn2SnO4') | (I('zinc') + I('stannate')) |
-     W('SnO2') | (I('tin') + I('oxide'))
-     ) + Optional(I('film')) + Optional(I('anode'))
-).add_action(join)
-
-common_redox_couples = (
-    R('I[−−-]\/( )?I3[−−-]') |
-    R('T2\/( )?T[−−-]') |
-    I('I-') + W('/') + I('I3-')
-).add_action(join)
-
-
-# Basic Voc parser
-class OpenCircuitVoltage(ElectricPotentialModel):
-    """Testing out a model"""
-    specifier = StringType(parse_expression=I('Voc'), required=True, contextual=False, updatable=True)
-    parsers = [AutoTableParserOptionalCompound()]
-
-
-# Basic Fill factor parser
-class FillFactor(DimensionlessModel):
-    specifier = StringType(parse_expression=(I('FF') | (I('fill') + I('factor')).add_action(join)), required=True, contextual=False, updatable=True)
-    parsers = [AutoTableParserOptionalCompound()]
-
-
-# Basic Power Conversion Efficieincy parser
-class PowerConversionEfficiency(RatioModel):
-    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff')), required=True, contextual=False, updatable=True)
-    parsers = [AutoTableParserOptionalCompound()]
-
-
-class Dye(BaseModel):
-    """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=(I('dye') | I('sample') | R('sensiti[zs]er')), required=True, contextual=False)
-    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
-
-
-# Basic Jsc parser
-class ShortCircuitCurrentDensity(CurrentDensityModel):
-    specifier = StringType(parse_expression=I('Jsc'), required=True, contextual=False, updatable=True)
-    parsers = [AutoTableParserOptionalCompound()]
-
-
-class PhotovoltaicDevice(BaseModel):
-    specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
-
-    voc = ModelType(OpenCircuitVoltage, required=False, contextual=False)
-    ff = ModelType(FillFactor, required=False, contextual=False)
-    pce = ModelType(PowerConversionEfficiency, required=False, contextual=False)
-    jsc = ModelType(ShortCircuitCurrentDensity, required=False, contextual=False)
-    dye = ModelType(Dye, required=False, contextual=False)
-
-    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
