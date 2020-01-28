@@ -51,7 +51,9 @@ class AmpPerMeterSquared(CurrentDensityUnit):
     def convert_error_from_standard(self, error):
         return error
 
+# CurrentDensity.units_dict = {}
 
-units_dict = {R('(m)?A( )?cm[−−-]2', group=0): AmpPerMeterSquared}
-CurrentDensity.units_dict.update(units_dict)
-CurrentDensity.standard_units = AmpPerMeterSquared()
+
+# units_dict = {R('(m)?A( )?cm[–\−−-]2', group=0): AmpPerMeterSquared}
+# CurrentDensity.units_dict.update(units_dict)
+# CurrentDensity.standard_units = AmpPerMeterSquared()

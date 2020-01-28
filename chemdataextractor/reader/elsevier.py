@@ -112,7 +112,7 @@ class ElsevierXmlReader(XmlReader):
     table_head_row_css = 'cals|thead cals|row'
     table_body_row_css = 'cals|tbody cals|row'
     table_cell_css = 'ce|entry'
-    table_footnote_css = 'table-wrap-foot p'
+    table_footnote_css = 'ce|table ce|table-footnote'
     figure_css = 'ce|figure'
     figure_caption_css = 'ce|figure ce|caption'
     figure_label_css = 'ce|figure ce|label'

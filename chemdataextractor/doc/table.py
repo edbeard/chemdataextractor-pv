@@ -35,7 +35,7 @@ class Table(CaptionedElement):
     Main Table object. Relies on TableDataExtractor.
     """
 
-    def __init__(self, caption, label=None, table_data=[], models=None, **kwargs):
+    def __init__(self, caption, label=None, table_data=[], models=None, footnotes=None, **kwargs):
         """
         In addition to the parameters below, any keyword arguments supported by TableDataExtractor.TdeTable
         can be passed in as keyword arguments and they will be passed on to TableDataExtractor.TdeTable.
@@ -61,6 +61,7 @@ class Table(CaptionedElement):
         :param Any id: (Optional) Some identifier for this element. Must be equatable.
         """
         super(Table, self).__init__(caption=caption, label=label, models=models, **kwargs)
+        self.footnotes = footnotes if footnotes is not None else []
         try:
             #: TableDataExtractor `Table` object. Can pass any kwargs into TDE directly.
             self.tde_table = TdeTable(table_data, **kwargs)

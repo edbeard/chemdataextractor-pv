@@ -5,7 +5,7 @@ Test the Table Document element and complex Table autoparsers.
 """
 
 from chemdataextractor.doc import Caption, Document
-from chemdataextractor.doc.table import Table
+from chemdataextractor.doc.table import Table, Cell
 from chemdataextractor.model import TemperatureModel, StringType, Compound, ModelType, DimensionlessModel
 from chemdataextractor.parse.cem import CompoundParser, CompoundHeadingParser, ChemicalLabelParser, CompoundTableParser
 from chemdataextractor.model.units.energy import EnergyModel
@@ -259,7 +259,7 @@ class SimplePhotovoltaicDevice(BaseModel):
 
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
-class TestNestedTablePVCell(unittest.TestCase):
+class TestTablePVCell(unittest.TestCase):
     """ Testing complex nested tables for photovoltaic tables"""
 
     def test_LH_column_merging(self):
@@ -273,7 +273,17 @@ class TestNestedTablePVCell(unittest.TestCase):
 
         self.assertEqual(expected_1, table.records[-2].serialize())
         self.assertEqual(expected_2, table.records[-1].serialize())
+        
+    def test_unusual_hyphen_included(self):
+        
+        cell_string = '7.53 sdfkljlk N719 sdfkljlk Jsc mAcm–2'
+        cell = Cell(cell_string)
+        parser = AutoTableParserOptionalCompound()
+        parser.model = ShortCircuitCurrentDensity
+        results = parser.parse_cell(cell)
 
+        for result in results:
+            print(result)
 
 if __name__ == '__main__':
     unittest.main()

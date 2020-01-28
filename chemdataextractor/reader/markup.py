@@ -211,13 +211,15 @@ class LxmlReader(six.with_metaclass(ABCMeta, BaseReader)):
         caption_css = self._css(self.table_caption_css, el)
         caption = self._parse_text(caption_css[0], refs=refs, specials=specials, element_cls=Caption)[0] if caption_css else Caption('')
         hrows= self._parse_table_rows(self._css(self.table_head_row_css, el), refs=refs, specials=specials)
-        rows = rows = self._parse_table_rows(self._css(self.table_body_row_css, el), refs=refs, specials=specials)
+        rows = self._parse_table_rows(self._css(self.table_body_row_css, el), refs=refs, specials=specials)
+        footnotes = self._parse_table_footnotes(self._css(self.table_footnote_css, el), refs=refs, specials=specials)
+
         data = []
         for hr in hrows:
             data.append([i.text.strip() for i in hr])
         for r in rows:
             data.append([i.text.strip() for i in r])
-        table = Table(caption, table_data=data)
+        table = Table(caption, footnotes=footnotes, table_data=data)
 
         return [table]
 

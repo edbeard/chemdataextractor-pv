@@ -55,7 +55,7 @@ def construct_unit_element(dimensions):
     units_regex += ')?'
     units_regex += '('
     # Case where we have a token that's just brackets
-    units_regex += r'((\(|\[))|((\)|\]))|\-|'
+    units_regex += r'((\(|\[))|((\)|\]))|[\-–−]?|'
     # Handle all the units
     for element in dimensions.units_dict:
         units_regex += '(' + element.pattern + ')|'

@@ -36,7 +36,8 @@ from chemdataextractor.parse.quantity import value_element_plain
 from chemdataextractor.doc.text import Sentence
 from chemdataextractor.parse.elements import I
 from chemdataextractor.model import Compound, ModelType, StringType
-from chemdataextractor.doc.table import Table
+from chemdataextractor.model.units.current_density import CurrentDensityModel, CurrentDensity
+from chemdataextractor.doc.table import Table, Cell
 from chemdataextractor.doc.text import Caption
 from chemdataextractor.model.pv_model import OpenCircuitVoltage
 
@@ -105,6 +106,17 @@ class TestAutoRules(unittest.TestCase):
             results_list.append(etree.tostring(result[0]))
         expected = [b'<raw_units>J/kg-K</raw_units>']
         self.assertEqual(expected, results_list)
+
+    # def test_unit_element_4(self):
+    #     test_celllike_sentence = Cell('7.53 sdfkljlk N719 sdfkljlk Jsc mAcm–2')
+    #     print(test_celllike_sentence.tagged_tokens)
+    #     units_expression = construct_unit_element(CurrentDensity()).with_condition(match_dimensions_of(CurrentDensityModel()))('raw_units')
+    #     results = units_expression.scan(test_celllike_sentence.tagged_tokens)
+    #     results_list = []
+    #     for result in results:
+    #         results_list.append(etree.tostring(result[0]))
+    #     expected = [b'<raw_units>mAcm-2</raw_units>']
+    #     self.assertEqual(expected, results_list)
 
     def test_unit_element_nospace(self):
         test_sentence = Sentence('Area was increasing at 31 m2/s and')

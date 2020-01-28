@@ -102,7 +102,7 @@ class RedoxCouple(BaseModel):
 
 
 class DyeLoading(AmounOfSubstanceDensityModel):
-    specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | I('Cm')), required=True)
+    specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
     exponent = StringType(parse_expression=(W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d')).add_action(join))
     parsers = [AutoTableParserOptionalCompound()]
 
