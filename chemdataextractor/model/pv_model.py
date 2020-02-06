@@ -91,7 +91,7 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=(I('dye') | I('sample') | R('sensiti[zs]er')), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | I('sample') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
@@ -201,7 +201,6 @@ class PhotovoltaicCell(BaseModel):
 class SentenceDye(BaseModel):
     """ Dye mentioned in a sentence. Identifies def"""
 
-    specifier = StringType(parse_expression=(I('dye') | I('sample') | R('sensiti[zs]er')), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | I('sample') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(common_dyes | lenient_chemical_label), required=True)
-    # compound = ModelType(Compound, required=False)
     parsers = [AutoSentenceParserOptionalCompound()]
