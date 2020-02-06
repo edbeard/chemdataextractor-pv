@@ -115,7 +115,7 @@ class TestAutoRules(unittest.TestCase):
         results_list = []
         for result in results:
             results_list.append(etree.tostring(result[0]))
-        expected = [b'<raw_units>mAcm–2</raw_units>']
+        expected = [b'<raw_units>mAcm&#8211;2</raw_units>']
         self.assertEqual(expected, results_list)
 
     def test_unit_element_nospace(self):

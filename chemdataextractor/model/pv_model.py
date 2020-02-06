@@ -23,6 +23,7 @@ from .units.resistance import ResisitanceModel
 from .units.time import TimeModel
 from ..parse.elements import R, I, Optional, W, Group, NoMatch, Any, Start, SkipTo, Not
 from ..parse.actions import merge, join
+from ..parse.cem import lenient_chemical_label
 
 from ..model.units.quantity_model import DimensionlessModel
 from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound
@@ -59,6 +60,11 @@ common_redox_couples = (
     R('T2\/( )?T[−−-]') |
     I('I-') + W('/') + I('I3-')
 ).add_action(join)
+
+
+common_dyes = (
+    I('N719')
+)
 
 
 # Common properties for photovoltaic cells:
@@ -188,3 +194,14 @@ class PhotovoltaicCell(BaseModel):
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)
 
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+
+# Sentence parsers for separately  sentence information
+
+
+class SentenceDye(BaseModel):
+    """ Dye mentioned in a sentence. Identifies def"""
+
+    specifier = StringType(parse_expression=(I('dye') | I('sample') | R('sensiti[zs]er')), required=True, contextual=False)
+    raw_value = StringType(parse_expression=(common_dyes | lenient_chemical_label), required=True)
+    # compound = ModelType(Compound, required=False)
+    parsers = [AutoSentenceParserOptionalCompound()]

@@ -224,17 +224,6 @@ class Table(CaptionedElement):
             else:
                 row_first[row_key] = ModelList(record)
 
-        # Adding the first result in a row to the appropriate list when found
-        if '' in row_first.keys():
-            for model in row_first[''].models:
-                if hasattr(model, 'raw_value') and model.raw_value is not None:
-                    key = ' '.join(model.raw_value.replace(' ', ''))
-                    if key in row_first.keys():
-                        model.table_row_category = key
-                        row_first[key].models.insert(0, model)
-
-            del (row_first[''])
-
         # Consolidate for each row/column
         for _, records in six.iteritems(row_first):
             self._consolidate(records)
