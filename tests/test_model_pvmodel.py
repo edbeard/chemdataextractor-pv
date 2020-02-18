@@ -18,9 +18,9 @@ import unittest
 from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
-    ChargeTransferResistance, SeriesResistance, ExposureTime
+    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye
 
-from chemdataextractor.doc.text import Sentence, Caption
+from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
 
 logging.basicConfig(level=logging.DEBUG)
@@ -234,6 +234,15 @@ class TestPhotovoltaicCellText(unittest.TestCase):
             output.append(record.serialize())
         self.assertEqual(output, expected)
 
+    def do_paragraph(self, input, expected, model):
+        paragraph = Paragraph(input)
+        paragraph.models = [model]
+        output = []
+        for record in paragraph.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+
     def test_solar_irradiance_sentence(self):
         input = 'The measurements were conducted at a simulated solar light intensity of 100 mW cm−2 (AM 1.5G) unless specified'
         expected = [{'SimulatedSolarLightIntensity': {'raw_value': '100', 'raw_units': 'mWcm−2(', 'value': [100.0],
@@ -275,4 +284,10 @@ class TestPhotovoltaicCellText(unittest.TestCase):
                     {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'anodes'}}]
 
         self.do_sentence(input, expected, Semiconductor)
+
+    def test_sentence_dye_sentence(self):
+        input = "Organic sensitizer of 3-{6-{4-[bis(2′,4′-dihexyloxybiphenyl-4-yl)amino-]phenyl}-4,4-dihexyl-cyclopenta-[2,1-b:3,4-b']dithiophene-2-yl}-2-cyanoacrylic acid (Y123) was purchased from Dyenamo and used without purification."
+        expected = [{'SentenceDye': {'raw_value': 'Y123', 'specifier': 'sensitizer'}}]
+
+        self.do_sentence(input, expected, SentenceDye)
 

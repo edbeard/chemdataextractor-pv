@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from abc import abstractproperty, abstractmethod
 from .quantity import extract_error, extract_units, extract_value
 import logging
+import lxml
 
 log = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ class BaseSentenceParser(BaseParser):
             trigger_phrase_results = [result for result in self.trigger_phrase.scan(tokens)]
         if self.trigger_phrase is None or trigger_phrase_results:
             for result in self.root.scan(tokens):
+                # print(lxml.etree.tostring(result[0]))
                 for model in self.interpret(*result):
                     yield model
 

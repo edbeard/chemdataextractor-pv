@@ -23,7 +23,7 @@ from .units.resistance import ResisitanceModel
 from .units.time import TimeModel
 from ..parse.elements import R, I, Optional, W, Group, NoMatch, Any, Start, SkipTo, Not
 from ..parse.actions import merge, join
-from ..parse.cem import lenient_chemical_label
+from ..parse.cem import strict_chemical_label
 
 from ..model.units.quantity_model import DimensionlessModel
 from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound
@@ -193,7 +193,7 @@ class PhotovoltaicCell(BaseModel):
     series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)
 
-    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+    parsers = [AutoTableParserOptionalCompound()]#, AutoSentenceParserOptionalCompound()]
 
 # Sentence parsers for separately  sentence information
 
@@ -201,6 +201,9 @@ class PhotovoltaicCell(BaseModel):
 class SentenceDye(BaseModel):
     """ Dye mentioned in a sentence. Identifies def"""
 
-    specifier = StringType(parse_expression=((I('dye') | I('sample') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(common_dyes | lenient_chemical_label), required=True)
+    alphanumeric_label= R('^(([A-Z][\--–−]?)+\d{1,3})$')('labels')
+    lenient_label = alphanumeric_label | strict_chemical_label
+
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    raw_value = StringType(parse_expression=(common_dyes | lenient_label), required=True)
     parsers = [AutoSentenceParserOptionalCompound()]

@@ -280,10 +280,9 @@ class TestTablePVCell(unittest.TestCase):
         cell = Cell(cell_string)
         parser = AutoTableParserOptionalCompound()
         parser.model = ShortCircuitCurrentDensity
-        results = parser.parse_cell(cell)
+        results = list(parser.parse_cell(cell))
 
-        for result in results:
-            print(result)
+        self.assertEqual(results[0].serialize(), {'ShortCircuitCurrentDensity': {'raw_value': '7.53', 'raw_units': 'mAcm–2', 'value': [7.53], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}})
 
 if __name__ == '__main__':
     unittest.main()
