@@ -291,3 +291,9 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
         self.do_sentence(input, expected, SentenceDye)
 
+    def test_sentence_dye_sentence_2(self):
+        input = "The experiment used a dye that we are not mentioning here, and used a TiO2 substrate."
+        expected = [{'SentenceDye': {'specifier': 'dye'}}]
+
+        self.do_sentence(input, expected, SentenceDye)
+

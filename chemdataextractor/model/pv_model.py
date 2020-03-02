@@ -61,6 +61,8 @@ common_redox_couples = (
     I('I-') + W('/') + I('I3-')
 ).add_action(join)
 
+not_dyes = common_substrates | common_spectra | common_semiconductors | common_redox_couples
+
 common_dyes = (
     I("Squarylium dye III") |
     I("1,3-Bis[4-(dimethylamino)phenyl]-2,4-dihydroxycyclobutenediylium dihydroxide, bis(inner salt)") |
@@ -382,7 +384,7 @@ class SentenceDye(BaseModel):
     """ Permissive parser for Dyes mentioned in a sentence. Finds the word 'dye', and accepts any alphanumeric label."""
 
     alphanumeric_label= R('^(([A-Z][\--–−]?)+\d{1,3})$')('labels')
-    lenient_label = alphanumeric_label | strict_chemical_label
+    lenient_label = Not(not_dyes) + (alphanumeric_label | strict_chemical_label)
 
     specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(common_dyes | lenient_label), required=True)
