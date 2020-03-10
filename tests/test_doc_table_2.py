@@ -16,6 +16,7 @@ from chemdataextractor.parse.auto import AutoTableParser, AutoTableParserOptiona
 
 import logging
 import unittest
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -69,11 +70,12 @@ class TestNestedTable(unittest.TestCase):
 
     def do_table(self, expected):
         Compound.parsers = [CompoundParser(), CompoundHeadingParser(), ChemicalLabelParser()]
+        table_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'tables', 'table_example_3.csv')
         table = Table(caption=Caption(""),
-                      table_data="tests/data/tables/table_example_3.csv",
+                      table_data=table_data_path,
                       models=[CurieTemperature])
         result = _get_serialised_records(table.records, models=[CurieTemperature])
-        self.assertCountEqual(expected, result)
+        self.assertEqual(expected, result)
         Compound.parsers = [CompoundParser(), CompoundHeadingParser(), ChemicalLabelParser(), CompoundTableParser()]
         Enthalpy.absent.required = True
         Enthalpy.absent.contextual = True
@@ -246,6 +248,51 @@ class TestNestedTable(unittest.TestCase):
         ]
         self.do_table(expected)
 
+    def test_requires_submodels_from_list(self):
+        """
+        Tests a subset of the table
+        """
+        # Set the default settings
+        Compound.parsers = [CompoundParser(), CompoundHeadingParser(), ChemicalLabelParser(), CompoundTableParser()]
+
+        # Specific test settings
+        Enthalpy.absent.required = False
+        Reference.enthalpy.required = True
+        CurieTemperature.reference.required = True
+
+        input = [["Composition","TC (K)","Enthalpy (kJ)","−S diff(J kg−1 K)","CCK (J kg−1)","Ref."],
+                 ['La0.67Ca0.33(TF)', '252', '5', '2.08', '175', '26'],
+                 ['La0.67Sr0.33MnO3(TF)', '312', '1.5', '1.54', '50.16', '58'],
+                 ['La0.67Sr0.33MnO3(TF)', '321', '1.5', '1.47', '34.24', '58'],
+                 ['Ba0.33Mn0.98Ti0.02O3 (PWD)','309','1','0.93','45','39'],
+                 ['Ba0.33Mn0.98Ti0.02O3 (PWD)','309','5','3.19','307','39'],
+                 ['Ba0.33Mn0.98Ti0.02O3(TF)', '286', '5', '3.35', '220', 'This work'],
+                 ['Ba0.33Mn0.98Ti0.02O3(TF)', '286', '1', '0.99', '49', 'This work']
+                 ]
+        expected = [
+            {'CurieTemperature': {'raw_value': '252', 'raw_units': '(K)', 'value': [252.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['La0.67Ca0.33']}}, 'reference': {'Reference': {'raw_value': '26', 'value': [26.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['La0.67Ca0.33']}}, 'enthalpy': {'Enthalpy': {'raw_value': '5', 'raw_units': '(kJ)', 'value': [5.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['La0.67Ca0.33']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '312', 'raw_units': '(K)', 'value': [312.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}, 'reference': {'Reference': {'raw_value': '58', 'value': [58.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '1.5', 'raw_units': '(kJ)', 'value': [1.5], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '321', 'raw_units': '(K)', 'value': [321.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}, 'reference': {'Reference': {'raw_value': '58', 'value': [58.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '1.5', 'raw_units': '(kJ)', 'value': [1.5], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['La0.67Sr0.33MnO3']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '286', 'raw_units': '(K)', 'value': [286.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'reference': {'Reference': {'raw_value': '286', 'value': [286.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '5', 'raw_units': '(kJ)', 'value': [5.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '286', 'raw_units': '(K)', 'value': [286.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'reference': {'Reference': {'raw_value': '286', 'value': [286.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '1', 'raw_units': '(kJ)', 'value': [1.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '309', 'raw_units': '(K)', 'value': [309.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'reference': {'Reference': {'raw_value': '39', 'value': [39.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '1', 'raw_units': '(kJ)', 'value': [1.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}}}}}}},
+            {'CurieTemperature': {'raw_value': '309', 'raw_units': '(K)', 'value': [309.0], 'units': 'Kelvin^(1.0)', 'specifier': 'TC', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'reference': {'Reference': {'raw_value': '39', 'value': [39.0], 'specifier': 'Ref', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}, 'enthalpy': {'Enthalpy': {'raw_value': '5', 'raw_units': '(kJ)', 'value': [5.0], 'units': '(10^3.0) * Joule^(1.0)', 'specifier': 'Enthalpy', 'compound': {'Compound': {'names': ['Ba0.33Mn0.98Ti0.02O3']}}}}}}}},
+       ]
+        Compound.parsers = [CompoundParser(), CompoundHeadingParser(), ChemicalLabelParser()]
+        table = Table(caption=Caption(""),
+                      table_data=input,
+                      models=[CurieTemperature])
+        result = _get_serialised_records(table.records, models=[CurieTemperature])
+
+        self.assertCountEqual(expected, result)
+        Compound.parsers = [CompoundParser(), CompoundHeadingParser(), ChemicalLabelParser(), CompoundTableParser()]
+        Enthalpy.absent.required = True
+        Enthalpy.absent.contextual = True
+        Reference.enthalpy.required = True
+        Reference.enthalpy.contextual = True
+        CurieTemperature.reference.required = True
+        CurieTemperature.reference.contextual = True
+
 
 # DEFINE A SIMPLE PV PARSER
 class SimplePhotovoltaicDevice(BaseModel):
@@ -259,6 +306,7 @@ class SimplePhotovoltaicDevice(BaseModel):
 
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
+
 class TestTablePVCell(unittest.TestCase):
     """ Testing complex nested tables for photovoltaic tables"""
 
@@ -270,9 +318,12 @@ class TestTablePVCell(unittest.TestCase):
 
         expected_1 = {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '22.22', 'raw_units': '(V)', 'value': [22.22], 'units': 'Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '33.33', 'value': [33.33], 'specifier': 'FF'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '44.44', 'value': [44.44], 'specifier': 'PCE'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '11.11', 'raw_units': '(mAcm−2)', 'value': [11.11], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'DPTP'}}}}
         expected_2 = {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '66.66', 'raw_units': '(V)', 'value': [66.66], 'units': 'Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '77.77', 'value': [77.77], 'specifier': 'FF'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '88.88', 'value': [88.88], 'specifier': 'PCE'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '55.55', 'raw_units': '(mAcm−2)', 'value': [55.55], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}}}
+        expected = [expected_1, expected_2]
 
-        self.assertEqual(expected_1, table.records[-2].serialize())
-        self.assertEqual(expected_2, table.records[-1].serialize())
+        # Get the results that are SimplePhotovoltaicDevice objects
+        spd_records = [record.serialize() for record in table.records if 'SimplePhotovoltaicDevice' in record.serialize().keys()]
+
+        self.assertCountEqual(expected, spd_records)
         
     def test_unusual_hyphen_included(self):
         

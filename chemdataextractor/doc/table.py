@@ -6,6 +6,8 @@ Table document elements
 
 .. codeauthor: Callum Court <cc889@cam.ac.uk>
 
+.. codeauthor: Ed Beard <ejb207@cam.ac.uk>
+
 """
 
 from __future__ import absolute_import
@@ -14,7 +16,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-import copy
 import six
 
 from .element import CaptionedElement
@@ -22,9 +23,7 @@ from tabledataextractor import Table as TdeTable
 from tabledataextractor import TrivialTable as TrivialTdeTable
 from tabledataextractor.exceptions import TDEError
 from ..doc.text import Cell
-from ..model.model import Compound
-from ..model.base import ModelList, ModelType
-from pprint import pprint
+from ..model.base import ModelList
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -101,7 +100,7 @@ class Table(CaptionedElement):
     def definitions(self):
         return self.caption.definitions
 
-    def _parse_table(self, parser, cde_table):
+    def _parse_table(self, parser, cde_table, table_records):
         """
         Parses a table. The model and the category table have to be provided.
 
@@ -116,11 +115,24 @@ class Table(CaptionedElement):
                 results = parser.parse_cell(cde_cell)
                 for result in results:
                     if result.serialize() != {}:
-                        # yield {parser.model.__name__: result.serialize()}
-                        # adding of the row/column header categories to the record for potential merging later
+
+                        # Add information from previous category table
+                        result = self._add_category_table_records(result, table_records, cde_cell)
                         result.table_row_categories = ' '.join(cde_cell.row_categories)
                         result.table_col_categories = ' '.join(cde_cell.col_categories)
                         yield result
+
+    def _add_category_table_records(self, result, table_records, cde_cell):
+        for record in table_records:
+            if hasattr(record, 'raw_value'):
+                if record.raw_value in cde_cell.row_categories and record.table_row_categories in cde_cell.row_categories:
+                    types = [(key, item.model_class) for (key, item) in result.fields.items() if
+                             item.__class__.__name__ == 'ModelType']
+                    for key, value in types:
+                        if value == type(record) and getattr(result, key) is None:
+                            print(type(record))
+                            setattr(result, key, record)
+        return result
 
     @property
     def records(self):
@@ -163,12 +175,15 @@ class Table(CaptionedElement):
                 cde_table.append(cde_cell)
             cde_tables.append(cde_table)
 
+        # Invert the table order
+        cde_tables = cde_tables[::-1]
+
         # Step 1
         table_records = ModelList()
-        for model in self._streamlined_models:
-            for parser in model.parsers:
-                for cde_table in cde_tables:
-                    for record in self._parse_table(parser, cde_table):
+        for cde_table in cde_tables:
+            for model in self._streamlined_models:
+                for parser in model.parsers:
+                    for record in self._parse_table(parser, cde_table, table_records):
                         table_records.append(record)
 
         # Step 2

@@ -742,7 +742,7 @@ class ModelList(MutableSequence):
         """
         Remove any subsets contained within the ModelList.
 
-        :param bool strict: Default True. Whether only strict subsets are removed. When this is False, duplicates are removed too.
+        :param bool strict: Default False. Whether only strict subsets are removed. When this is False, duplicates are removed too.
         """
         # A dictionary with the type of each element as the key, and the element itself as the value
         typed_list = {}

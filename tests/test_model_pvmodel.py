@@ -37,7 +37,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         output = []
         for record in table.records:
             output.append(record.serialize())
-        self.assertEqual(output, expected)
+        self.assertCountEqual(output, expected)
 
     # Tests for the specfic property extraction
     def test_open_circuit_voltage_table(self):
