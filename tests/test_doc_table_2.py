@@ -335,5 +335,28 @@ class TestTablePVCell(unittest.TestCase):
 
         self.assertEqual(results[0].serialize(), {'ShortCircuitCurrentDensity': {'raw_value': '7.53', 'raw_units': 'mAcm–2', 'value': [7.53], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}})
 
+    def test_nested_tables_1(self):
+
+        table_input = [['Dye','CV scans', 'Illumination W/m2', 'Voc mV', 'Jsc mA/cm2', 'ff', 'η/%'],
+                       ['D5', '0', '1000', '333','3.41','0.35','0.39'],
+                       ['D5','3','1000','465','2.71','0.38','0.48'],
+                       ['D5','Ref [28]','1000','660','11.9','0.68','4–5'],
+                       ['D35','3','1000','660','2.71','0.48','0.85'],
+                       ['D35','5','1000','667','2.53','0.49','0.82'],
+                       ['D35','Ref [29]','1000','920','10.7','0.68','6.7']
+                       ]
+        table = Table(caption=Caption(''), table_data=table_input, models=[SimplePhotovoltaicDevice])
+        spd_records = [record.serialize() for record in table.records if 'SimplePhotovoltaicDevice' in record.serialize().keys()]
+
+        expected = [{'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '333', 'raw_units': 'mV', 'value': [333.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.35', 'value': [0.35], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '0.39', 'raw_units': '%', 'value': [0.39], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '3.41', 'raw_units': 'mA/cm2', 'value': [3.41], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D5'}}}},
+            {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '465', 'raw_units': 'mV', 'value': [465.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.38', 'value': [0.38], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '0.48', 'raw_units': '%', 'value': [0.48], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '2.71', 'raw_units': 'mA/cm2', 'value': [2.71], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D5'}}}},
+            {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '660', 'raw_units': 'mV', 'value': [660.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.68', 'value': [0.68], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '4–5', 'raw_units': '%', 'value': [4.0, 5.0], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '11.9', 'raw_units': 'mA/cm2', 'value': [11.9], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D5'}}}},
+            {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '660', 'raw_units': 'mV', 'value': [660.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.48', 'value': [0.48], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '0.85', 'raw_units': '%', 'value': [0.85], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '2.71', 'raw_units': 'mA/cm2', 'value': [2.71], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D35'}}}},
+            {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '667', 'raw_units': 'mV', 'value': [667.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.49', 'value': [0.49], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '0.82', 'raw_units': '%', 'value': [0.82], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '2.53', 'raw_units': 'mA/cm2', 'value': [2.53], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D35'}}}},
+            {'SimplePhotovoltaicDevice': {'voc': {'OpenCircuitVoltage': {'raw_value': '920', 'raw_units': 'mV', 'value': [920.0], 'units': '(10^-3.0) * Volt^(1.0)', 'specifier': 'Voc'}}, 'ff': {'FillFactor': {'raw_value': '0.68', 'value': [0.68], 'specifier': 'ff'}}, 'pce': {'PowerConversionEfficiency': {'raw_value': '6.7', 'raw_units': '%', 'value': [6.7], 'units': 'Percent^(1.0)', 'specifier': 'η'}}, 'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '10.7', 'raw_units': 'mA/cm2', 'value': [10.7], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'D35'}}}}
+        ]
+
+        self.assertCountEqual(spd_records, expected)
+
 if __name__ == '__main__':
     unittest.main()
