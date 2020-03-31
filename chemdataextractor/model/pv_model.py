@@ -273,7 +273,7 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=((I('dye') | I('sample') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
@@ -386,7 +386,7 @@ class SentenceDye(BaseModel):
     alphanumeric_label= R('^(([A-Z][\--–−]?)+\d{1,3})$')('labels')
     lenient_label = Not(not_dyes) + (alphanumeric_label | strict_chemical_label)
 
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(common_dyes | lenient_label), required=True)
     parsers = [AutoSentenceParserOptionalCompound()]
 

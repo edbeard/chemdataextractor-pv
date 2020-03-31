@@ -130,7 +130,6 @@ class Table(CaptionedElement):
                              item.__class__.__name__ == 'ModelType']
                     for key, value in types:
                         if value == type(record) and getattr(result, key) is None:
-                            print(type(record))
                             setattr(result, key, record)
         return result
 
