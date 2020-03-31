@@ -271,6 +271,19 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
         self.do_sentence(input, expected, SimulatedSolarLightIntensity)
 
+    def test_solar_irradiance_sentence_4(self):
+        input = 'Detailed photovoltaic parameters of solar cells based on different TiO2 photoelectrodes under AM 1.5 illumination (100 mW cm−2).'
+        expected = [{'SimulatedSolarLightIntensity': {'raw_units': 'mWcm−2)',
+                                   'raw_value': '100',
+                                   'specifier': 'illumination',
+                                   'spectra': 'AM 1.5',
+                                   'units': '(10^1.0) * Meter^(-2.0)  '
+                                            'Watt^(1.0)',
+                                   'value': [100.0]}}]
+
+        self.do_sentence(input, expected, SimulatedSolarLightIntensity)
+
+
     def test_semiconductor_thickness_sentence(self):
         input = '8 μm thick ZnO anodes'
         expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'anodes'}}]

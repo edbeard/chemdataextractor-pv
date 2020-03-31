@@ -320,7 +320,7 @@ class ActiveArea(AreaModel):
 
 
 class SimulatedSolarLightIntensity(IrradianceModel):
-    specifier = StringType(parse_expression=(I('irradiance') | (I('light') + I('intensity') + Optional(I('of'))).add_action(join)), required=True)
+    specifier = StringType(parse_expression=(I('irradiance') | I('illumination') | (I('light') + I('intensity') + Optional(I('of'))).add_action(join)), required=True)
     spectra = StringType(parse_expression=common_spectra)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
