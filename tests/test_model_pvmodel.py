@@ -18,7 +18,7 @@ import unittest
 from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
-    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye
+    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -94,7 +94,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
     def test_dye_loading_table(self):
         input = [['Dye', 'Dye loading (mol cm−2)'], ['N719', '13.12×10−8 ']]
-        expected = [{'DyeLoading': {'exponent': '− 8',
+        expected = [{'DyeLoading': {'exponent': [-8.0],
                  'raw_units': '(molcm−2)',
                  'raw_value': '13.12',
                  'specifier': 'Dye loading',
@@ -309,4 +309,15 @@ class TestPhotovoltaicCellText(unittest.TestCase):
         expected = [{'SentenceDye': {'specifier': 'dye'}}]
 
         self.do_sentence(input, expected, SentenceDye)
+
+    def test_dye_loading_sentence(self):
+        input = 'with a dye-loading capacity of two working electrodes: 2.601×10−7 mol cm−2.'
+        expected = [{'SentenceDyeLoading': {'exponent': [-7.0],
+                         'raw_units': 'molcm−2',
+                         'raw_value': '2.601',
+                         'specifier': 'loading',
+                         'units': '(10^4.0) * Meter^(-2.0)  Mol^(1.0)',
+                         'value': [2.601]}}]
+
+        self.do_sentence(input, expected, SentenceDyeLoading)
 

@@ -80,6 +80,48 @@ def value_element(units=(OneOrMore(T('NN')) | OneOrMore(T('NNP')) | OneOrMore(T(
     return value + units
 
 
+def value_element_with_exp(units=(OneOrMore(T('NN')) | OneOrMore(T('NNP')) | OneOrMore(T('NNPS')) | OneOrMore(T('NNS')))('raw_units').add_action(merge)):
+    """
+    Returns an Element for values with given units. By default, uses tags to guess that a unit exists.
+
+    :param BaseParserElement units: (Optional) A parser element for the units that are to be looked for. Default option looks for nouns.
+    :returns: An Element to look for values and units.
+    :rtype: BaseParserElement
+    """
+    number = R('^[\+\-–−]?\d+(([\.・,\d])+)?$')
+    joined_range = R('^[\+\-–−]?\d+(([\.・,\d])+)?[\-–−~∼˜]\d+(([\.・,\d])+)?$')('raw_value').add_action(merge)
+    spaced_range = (number + Optional(units).hide() + (R('^[\-–−~∼˜]$') + number | number))('raw_value').add_action(merge)
+    to_range = (number + Optional(units).hide() + I('to') + number)('raw_value').add_action(join)
+    plusminus_range = (number + R('±') + number)('raw_value').add_action(join)
+    bracket_range = R(number.pattern[:-1] + '\(\d+\)' + '$')('raw_value')
+    between_range = (I('between').hide() + number + I('and') + number).add_action(join)
+    value_range = (Optional(R('^[\-–−]$')) + (bracket_range | plusminus_range | joined_range | spaced_range | to_range | between_range))('raw_value').add_action(merge)
+    value_single = (Optional(R('^[~∼˜\<\>]$')) + Optional(R('^[\-–−]$')) + number)('raw_value').add_action(merge)
+    value = Optional(lbrct).hide() + (value_range | value_single)('raw_value') + Optional(rbrct).hide()
+    exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))('exponent').add_action(merge)
+    return value + exponent + units
+
+
+def value_element_plain_with_exponent():
+    """
+    Returns an element similar to value_element but without any units.
+
+    :returns: An Element to look for values.
+    :rtype: BaseParserElement
+    """
+    number = R('^[\+\-–−]?\d+(([\.・,\d])+)?$')
+    joined_range = R('^[\+\-–−]?\d+(([\.・,\d])+)?[\-–−~∼˜]\d+(([\.・,\d])+)?$')('raw_value').add_action(merge)
+    spaced_range = (number + R('^[\-–−~∼˜]$') + number)('raw_value').add_action(merge)
+    to_range = (number + I('to') + number)('raw_value').add_action(join)
+    plusminus_range = (number + R('±') + number)('raw_value').add_action(join)
+    bracket_range = R(number.pattern[:-1] + '\(\d+\)' + '$')('raw_value')
+    between_range = (I('between').hide() + number + I('and') + number).add_action(join)
+    value_range = (Optional(R('^[\-–−]$')) + (plusminus_range | joined_range | spaced_range | to_range | between_range | bracket_range))('raw_value').add_action(merge)
+    value_single = (Optional(R('^[~∼˜\<\>]$')) + Optional(R('^[\-–−]$')) + number)('raw_value').add_action(merge)
+    value = Optional(lbrct).hide() + (value_range | value_single)('raw_value') + Optional(rbrct).hide()
+    exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))('exponent').add_action(merge)
+    return value + exponent
+
 @memoize
 def value_element_plain():
     """

@@ -291,8 +291,7 @@ class RedoxCouple(BaseModel):
 
 class DyeLoading(AmounOfSubstanceDensityModel):
     specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
-    exponent = StringType(parse_expression=(W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d')).add_action(join))
-    parsers = [AutoTableParserOptionalCompound()]
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class CounterElectrode(BaseModel):
@@ -308,7 +307,7 @@ class SemiconductorThickness(LengthModel):
 
 
 class Semiconductor(BaseModel):
-    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?')), required=True)
+    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?')), required=True)
     raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk'))).add_action(join) | common_semiconductors)
     thickness = ModelType(SemiconductorThickness, required=False)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
@@ -398,3 +397,16 @@ class CommonSentenceDye(BaseModel):
                            required=True, contextual=False)
     raw_value = StringType(parse_expression=common_dyes, required=True)
     parsers = [AutoSentenceParserOptionalCompound()]
+
+
+class SentenceSemiconductor(BaseModel):
+    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?')), required=True)
+    raw_value = StringType(parse_expression=common_semiconductors, required=True)
+    thickness = ModelType(SemiconductorThickness, required=False)
+    parsers = [ AutoSentenceParserOptionalCompound()]
+
+
+class SentenceDyeLoading(AmounOfSubstanceDensityModel):
+    specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
+    exponent = None
+    parsers = [AutoSentenceParserOptionalCompound(lenient=True)]

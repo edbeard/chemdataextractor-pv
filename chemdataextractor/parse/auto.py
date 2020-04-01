@@ -28,7 +28,7 @@ from .cem import cem, chemical_label, lenient_chemical_label
 from .actions import merge, join
 from .elements import W, I, R, T, Optional, Any, OneOrMore, Not, ZeroOrMore, Group, SkipTo, Or
 from ..utils import first
-from .quantity import magnitudes_dict, value_element, extract_units, value_element_plain, lbrct, rbrct
+from .quantity import magnitudes_dict, value_element, extract_units, value_element_plain, value_element_with_exp, value_element_plain_with_exponent, lbrct, rbrct
 from .base import BaseSentenceParser, BaseParser, BaseTableParser
 
 import xml.etree.ElementTree as etree
@@ -295,7 +295,7 @@ class AutoSentenceParser(BaseAutoParser, BaseSentenceParser):
 
         # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
         for field in self.model.fields:
-            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier']:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent']:
                 if self.model.__getattribute__(self.model, field).parse_expression is not None:
                     entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
 
@@ -350,7 +350,7 @@ class AutoTableParser(BaseAutoParser, BaseTableParser):
 
         # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
         for field in self.model.fields:
-            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier']:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent']:
                 if self.model.__getattribute__(self.model, field).parse_expression is not None:
                     entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
 
@@ -407,7 +407,7 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
                 construct_unit_element(self.model.dimensions).with_condition(match_dimensions_of(self.model))('raw_units'))
             specifier = self.model.specifier.parse_expression('specifier')
             if self.lenient:
-                value_phrase = (value_element(unit_element) | value_element_plain())
+                value_phrase = value_element_with_exp(unit_element) | value_element(unit_element)
             else:
                 value_phrase = value_element(unit_element)
 
@@ -430,7 +430,7 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
 
         # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
         for field in self.model.fields:
-            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier']:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent']:
                 if self.model.__getattribute__(self.model, field).parse_expression is not None:
                     entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
 
@@ -457,9 +457,13 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
             else:
                 value = None
             error = self.extract_error(raw_value)
+            exponent = first(result.xpath('./exponent/text()'))
+            if exponent:
+                exponent = self.extract_value(exponent)
             property_entities.update({"raw_value": raw_value,
                                       "value": value,
-                                      "error": error})
+                                      "error": error,
+                                      "exponent": exponent})
 
         elif hasattr(self.model, 'dimensions') and self.model.dimensions:
             # the specific entities of a QuantityModel are retrieved explicitly and packed into a dictionary
@@ -472,6 +476,9 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
             else:
                 value = None
             error = self.extract_error(raw_value)
+            exponent = first(result.xpath('./exponent/text()'))
+            if exponent:
+                exponent = self.extract_value(exponent)
             units = None
             try:
                 units = self.extract_units(raw_units, strict=True)
@@ -482,7 +489,8 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
                                       "raw_units": raw_units,
                                       "value": value,
                                       "error": error,
-                                      "units": units})
+                                      "units": units,
+                                      "exponent": exponent})
 
         elif hasattr(self.model, 'raw_value'):
 
@@ -492,7 +500,7 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
             property_entities.update({"raw_value": raw_value})
 
         for field_name, field in six.iteritems(self.model.fields):
-            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error']:
+            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'exponent']:
                 try:
                     data = self._get_data(field_name, field, result)
                     if data is not None:
@@ -532,15 +540,10 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
 
         no_value_element = W('NoValue')('raw_value')
 
-        # Check if exponent detected
-        if hasattr(self.model, 'exponent'):
-            exponent = self.model.exponent.parse_expression('exponent')
-            entities.append(exponent)
-
         if hasattr(self.model, 'dimensions') and not self.model.dimensions:
             # the mandatory elements of Dimensionless model are grouped into a entities list
             specifier = self.model.specifier.parse_expression('specifier')
-            value_phrase = value_element_plain() | no_value_element
+            value_phrase = value_element_plain_with_exponent() | value_element_plain() | no_value_element
             entities.append(specifier)
             entities.append(value_phrase)
 
@@ -548,9 +551,10 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             # the mandatory elements of Quantity model are grouped into a entities list
             unit_element = Group(
                 construct_unit_element(self.model.dimensions).with_condition(match_dimensions_of(self.model))('raw_units'))
+
             specifier = self.model.specifier.parse_expression('specifier') + Optional(W('/') | W(',') | T(',')) + Optional(
                 unit_element)
-            value_phrase = ((value_element_plain() | no_value_element) + Optional(unit_element))
+            value_phrase = ((value_element_plain_with_exponent() | value_element_plain() | no_value_element) + Optional(unit_element))
             entities.append(specifier)
             entities.append(value_phrase)
 
@@ -601,9 +605,13 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             else:
                 value = None
             error = self.extract_error(raw_value)
+            exponent = first(result.xpath('./exponent/text()'))
+            if exponent:
+                exponent = self.extract_value(exponent)
             property_entities.update({"raw_value": raw_value,
                                       "value": value,
-                                      "error": error})
+                                      "error": error,
+                                      "exponent": exponent})
 
         elif hasattr(self.model, 'dimensions') and self.model.dimensions:
             # the specific entities of a QuantityModel are retrieved explicitly and packed into a dictionary
@@ -616,6 +624,9 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             else:
                 value = None
             error = self.extract_error(raw_value)
+            exponent = first(result.xpath('./exponent/text()'))
+            if exponent:
+                exponent = self.extract_value(exponent)
             units = None
             try:
                 units = self.extract_units(raw_units, strict=True)
@@ -626,7 +637,8 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
                                       "raw_units": raw_units,
                                       "value": value,
                                       "error": error,
-                                      "units": units})
+                                      "units": units,
+                                      "exponent": exponent})
         elif hasattr(self.model, 'raw_value'):
 
             raw_value = first(result.xpath('./raw_value/text()'))
@@ -637,7 +649,7 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             property_entities.update({"raw_value": raw_value})
 
         for field_name, field in six.iteritems(self.model.fields):
-            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error']:
+            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'exponent']:
                 try:
                     data = self._get_data(field_name, field, result)
                     if data is not None:

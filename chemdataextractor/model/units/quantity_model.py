@@ -49,6 +49,7 @@ class QuantityModel(six.with_metaclass(_QuantityModelMeta, BaseModel)):
     value = ListType(FloatType(contextual=True), contextual=True, sorted=True)
     units = UnitType(contextual=True)
     error = FloatType(contextual=True)
+    exponent = ListType(FloatType(contextual=True), contextual=True, sorted=True)
     dimensions = None
     specifier = StringType()
     parsers = [MultiQuantityModelTemplateParser(), QuantityModelTemplateParser(), AutoTableParser()]
