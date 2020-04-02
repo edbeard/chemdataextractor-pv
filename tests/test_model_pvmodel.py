@@ -18,7 +18,7 @@ import unittest
 from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
-    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading
+    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -39,6 +39,12 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         for record in table.records:
             output.append(record.serialize())
         self.assertCountEqual(output, expected)
+
+    def test_adsorbed_dye_not_identified_table(self):
+        """ Check that cases containing the units for dye loading in the heading are ignored."""
+        input = [['Dye', 'Adsorbed dye (10−7 mol cm−2)'], ['N719', '2.601']]
+        expected = [{'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}]
+        self.do_table_cell(input, expected, Dye)
 
     # Tests for the specfic property extraction
     def test_open_circuit_voltage_table(self):

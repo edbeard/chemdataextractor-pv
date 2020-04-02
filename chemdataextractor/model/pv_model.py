@@ -248,6 +248,9 @@ common_dyes = (
     I("(E)-3-(6-(4-(bis(5,7-dibutoxy-9,9-dimethyl-9H-fluoren-2-yl)amino)phenyl)-4,4-dihexyl-4H-cyclopenta[2,1-b:3,4-b']dithiophen-2-yl)-2-cyanoacrylic acid")
 ).add_action(join)
 
+exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))
+dye_loading_unit = Optional(W('(')) + exponent + I('mol') + R('[cnmk]m[−-−‒‐‑]2') + Optional(W(')'))
+
 
 # Common properties for photovoltaic cells:
 class OpenCircuitVoltage(ElectricPotentialModel):
@@ -273,7 +276,8 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading') |
+                                                dye_loading_unit)).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
