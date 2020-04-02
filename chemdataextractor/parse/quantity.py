@@ -76,7 +76,8 @@ def value_element(units=(OneOrMore(T('NN')) | OneOrMore(T('NNP')) | OneOrMore(T(
     between_range = (I('between').hide() + number + I('and') + number).add_action(join)
     value_range = (Optional(R('^[\-–−]$')) + (bracket_range | plusminus_range | joined_range | spaced_range | to_range | between_range))('raw_value').add_action(merge)
     value_single = (Optional(R('^[~∼˜\<\>]$')) + Optional(R('^[\-–−]$')) + number)('raw_value').add_action(merge)
-    value = Optional(lbrct).hide() + (value_range | value_single)('raw_value') + Optional(rbrct).hide()
+    value_div = (value_single + R('/') + value_single)('raw_value')
+    value = Optional(lbrct).hide() + (value_range | value_div | value_single)('raw_value') + Optional(rbrct).hide()
     return value + units
 
 
@@ -139,7 +140,8 @@ def value_element_plain():
     between_range = (I('between').hide() + number + I('and') + number).add_action(join)
     value_range = (Optional(R('^[\-–−]$')) + (plusminus_range | joined_range | spaced_range | to_range | between_range | bracket_range))('raw_value').add_action(merge)
     value_single = (Optional(R('^[~∼˜\<\>]$')) + Optional(R('^[\-–−]$')) + number)('raw_value').add_action(merge)
-    value = Optional(lbrct).hide() + (value_range | value_single)('raw_value') + Optional(rbrct).hide()
+    value_div = (value_single + R('/') + value_single)('raw_value').add_action(merge)
+    value = Optional(lbrct).hide() + (value_range | value_div | value_single)('raw_value') + Optional(rbrct).hide()
     return value
 
 
@@ -226,13 +228,39 @@ def extract_value(string):
         return None
     new_split_by_num = _find_value_strings(string)
     values = []
+    values_indices = []
+    fraction_indicators = []
     for index, value in enumerate(new_split_by_num):
         try:
+            # Add logic to identify fractions
+            if (re.match('/', value)):
+                fraction_indicators.append((value, index))
             float_val = float(value)
             values.append(float_val)
+            values_indices.append(index)
         except ValueError:
             pass
-    return values
+
+    # Substitute in fractions if required.
+    fractions = []
+    blacklisted_indices = []
+    for value, index in fraction_indicators:
+        if index != 0 and index + 1 <= values_indices[-1]:
+            for i in range(0, len(values)-1):
+                if values_indices[i] == index-1 and values_indices[i+1] == index + 1:
+                    print('fraction is:')
+                    print(values[i] / values[i+1])
+                    fractions.append(values[i] / values[i+1])
+                    blacklisted_indices.append(values_indices[i])
+                    blacklisted_indices.append(values_indices[i+1])
+
+    # Output with fraction numerators and denominators removed.
+    values_with_removed_fractions = []
+    for i, index in enumerate(values_indices):
+        if index not in blacklisted_indices:
+            values_with_removed_fractions.append(values[i])
+
+    return fractions + values_with_removed_fractions
 
 
 def _find_value_strings(string):

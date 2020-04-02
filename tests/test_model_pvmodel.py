@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
 class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
     def do_table_cell(self, cell_list, expected, model):
+        self.maxDiff = None
         logging.basicConfig(level=logging.DEBUG)
         table = Table(caption=Caption(""),
                       table_data=cell_list,
@@ -152,7 +153,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
     def test_semiconductor_table_2(self):
         input = [['Photoanode', 'Voc (V)'], ['T2/8/5 + T9/1/9', '12.3']]
-        expected = [{'Semiconductor': {'specifier': 'Photoanode', 'raw_value': 'T2 / 8 / 5 + T9 / 1 / 9', 'thickness': {'SemiconductorThickness': {'raw_value': '8', 'value': [8.0], 'specifier': 'Photoanode'}}}}, {'SemiconductorThickness': {'raw_value': '8', 'value': [8.0], 'specifier': 'Photoanode'}}]
+        expected = [{'Semiconductor': {'specifier': 'Photoanode', 'raw_value': 'T2 / 8 / 5 + T9 / 1 / 9'}}]
 
         self.do_table_cell(input, expected, Semiconductor)
 
@@ -166,6 +167,18 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         input = [['Dye', 'Solar irradiance'], ['N719', 'AM1.5G']]
         expected = [{'SimulatedSolarLightIntensity': {'specifier': 'irradiance',
                                    'spectra': 'AM1.5G'}}]
+
+        self.do_table_cell(input, expected, SimulatedSolarLightIntensity)
+
+    def test_solar_irradiance_sol(self):
+        input = [['Dye', 'Illumination (Sun)'], ['N719', '1']]
+        expected = [{'SimulatedSolarLightIntensity': {'raw_value': '1', 'raw_units': '(Sun)', 'value': [1.0], 'units': 'Sun^(1.0)', 'specifier': 'Illumination'}}]
+
+        self.do_table_cell(input, expected, SimulatedSolarLightIntensity)
+
+    def test_solar_irradiance_sol_2(self):
+        input = [['Dye', 'Illumination (Sol)'], ['N719', '1/8']]
+        expected = [{'SimulatedSolarLightIntensity': {'raw_value': '1/8', 'raw_units': '(Sol)', 'value': [0.125], 'units': 'Sun^(1.0)', 'specifier': 'Illumination'}}]
 
         self.do_table_cell(input, expected, SimulatedSolarLightIntensity)
 
@@ -286,15 +299,15 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
     def test_semiconductor_thickness_sentence(self):
         input = '8 μm thick ZnO anodes'
-        expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'anodes'}}]
+        expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}]
 
         self.do_sentence(input, expected, SemiconductorThickness)
 
     def test_semiconductor_sentence(self):
         input = 'Photovoltaic properties of D149-sensitized, YD2-o-C8-TBA-sensitized and co-sensitized ZnO DSSCs fabricated using 8 μm thick ZnO anodes with light-scattering layers.'
         expected = [{'Semiconductor': {'specifier': 'anodes', 'raw_value': 'ZnO',
-                    'thickness': {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'anodes'}}}},
-                    {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'anodes'}}]
+                    'thickness': {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}}},
+                    {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}]
 
         self.do_sentence(input, expected, Semiconductor)
 

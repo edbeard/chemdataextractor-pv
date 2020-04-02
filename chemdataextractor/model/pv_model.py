@@ -21,8 +21,8 @@ from .units.length import LengthModel
 from .units.ratio import RatioModel
 from .units.resistance import ResisitanceModel
 from .units.time import TimeModel
-from ..parse.elements import R, I, Optional, W, Group, NoMatch, Any, Start, SkipTo, Not
-from ..parse.actions import merge, join
+from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not
+from ..parse.actions import join
 from ..parse.cem import strict_chemical_label
 
 from ..model.units.quantity_model import DimensionlessModel
@@ -301,9 +301,9 @@ class CounterElectrode(BaseModel):
 
 
 class SemiconductorThickness(LengthModel):
-    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?')), required=True)
+    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?') | R('[Tt]hick(ness)?')), required=True)
     raw_value = StringType(required=True, contextual=False)
-    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+    parsers = [AutoTableParserOptionalCompound(lenient=False), AutoSentenceParserOptionalCompound()]
 
 
 class Semiconductor(BaseModel):
@@ -385,7 +385,7 @@ class SentenceDye(BaseModel):
     alphanumeric_label= R('^(([A-Z][\--–−]?)+\d{1,3})$')('labels')
     lenient_label = Not(not_dyes) + (alphanumeric_label | strict_chemical_label)
 
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?') | R('dsc(s)?', re.I)) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(common_dyes | lenient_label), required=True)
     parsers = [AutoSentenceParserOptionalCompound()]
 
@@ -393,7 +393,7 @@ class SentenceDye(BaseModel):
 class CommonSentenceDye(BaseModel):
     """ Restricted parsers for Dyes mentioned in a sentence. Finds the word 'dye', and accepts only common dyes from a list."""
 
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]er')) + Not(I('loading'))).add_action(join),
+    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]er') | R('dsc(s)?', re.I)) + Not(I('loading'))).add_action(join),
                            required=True, contextual=False)
     raw_value = StringType(parse_expression=common_dyes, required=True)
     parsers = [AutoSentenceParserOptionalCompound()]

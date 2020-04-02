@@ -52,6 +52,24 @@ class WattPerMeterSquared(IrradianceUnit):
         return error
 
 
-units_dict = {R('m?W( )?cm[−−-]2', group=0): WattPerMeterSquared}
+class Sun(IrradianceUnit):
+    """
+    Class Sun (solar radiation reaching the earth)
+    """
+    def convert_value_to_standard(self, value):
+        return value * 1000
+
+    def convert_value_from_standard(self, value):
+        return value / 1000
+
+    def convert_error_to_standard(self, error):
+        return error * 1000
+
+    def convert_error_from_standard(self, error):
+        return error / 1000
+
+
+units_dict = {R('m?W( )?cm[−−-]2', group=0): WattPerMeterSquared,
+              R('[Ss](un|ol)(s)?', group=0): Sun}
 Irradiance.units_dict.update(units_dict)
 Irradiance.standard_units = WattPerMeterSquared()

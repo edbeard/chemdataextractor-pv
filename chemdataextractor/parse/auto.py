@@ -522,8 +522,9 @@ class AutoSentenceParserOptionalCompound(BaseAutoParser, BaseSentenceParser):
 class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
     """ A test class to try automatic parsing where there is not always a compound"""
 
-    def __init__(self, chem_name=((cem | chemical_label | lenient_chemical_label))):
+    def __init__(self, lenient=True, chem_name=((cem | chemical_label | lenient_chemical_label))):
         super(AutoTableParserOptionalCompound, self).__init__()
+        self.lenient = lenient # If lenient is false, only accept values that have a unit
         self.chem_name = chem_name
 
     @property
@@ -632,6 +633,8 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
                 units = self.extract_units(raw_units, strict=True)
             except TypeError as e:
                 log.debug(e)
+                if not self.lenient:
+                    requirements = False
 
             property_entities.update({"raw_value": raw_value,
                                       "raw_units": raw_units,
