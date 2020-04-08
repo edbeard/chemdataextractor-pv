@@ -18,7 +18,8 @@ import unittest
 from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
-    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye
+    ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
+    PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -339,4 +340,46 @@ class TestPhotovoltaicCellText(unittest.TestCase):
                          'value': [2.601]}}]
 
         self.do_sentence(input, expected, SentenceDyeLoading)
+
+
+class TestPerovskiteCellTable(unittest.TestCase):
+
+    def do_table_cell(self, cell_list, expected, model):
+        self.maxDiff = None
+        logging.basicConfig(level=logging.DEBUG)
+        table = Table(caption=Caption(""),
+                      table_data=cell_list,
+                      models=[model])
+        output = []
+        for record in table.records:
+            output.append(record.serialize())
+        self.assertCountEqual(output, expected)
+
+    # Tests for the specfic property extraction
+    def test_simple_perovskite_sc_table(self):
+        input = [['counter electrode', 'Voc (V)'], ['Ag', '0.89']]
+        expected = [{'OpenCircuitVoltage': {'raw_units': '(V)',
+                         'raw_value': '0.89',
+                         'specifier': 'Voc',
+                         'units': 'Volt^(1.0)',
+                         'value': [0.89]}},
+                    {'CounterElectrode': {'specifier': 'counter electrode', 'raw_value': 'Ag'}},
+                    {'PerovskiteSolarCell': {'voc': {'OpenCircuitVoltage': {'raw_value': '0.89', 'raw_units': '(V)', 'value': [0.89], 'units': 'Volt^(1.0)', 'specifier': 'Voc'}}, 'counter_electrode': {'CounterElectrode': {'specifier': 'counter electrode', 'raw_value': 'Ag'}}}}]
+
+        self.do_table_cell(input, expected, PerovskiteSolarCell)
+
+    def test_simple_perovskite_table(self):
+        input = [['perovskite', 'Voc (V)'], ['CH3NH3PbI3', '0.89']]
+        expected = [{'Perovskite': {'specifier': 'perovskite', 'raw_value': 'CH3NH3PbI3'}}]
+        self.do_table_cell(input, expected, Perovskite)
+
+    def test_hole_transport_material_table(self):
+        input = [['HTM', 'Voc (V)'], ['Spiro-OMeTAD', '0.89']]
+        expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'Spiro - OMeTAD'}}]
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_electron_transporting_material_table(self):
+        input = [['HTM', 'Voc (V)'], ['Spiro-OMeTAD', '0.89']]
+        expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'Spiro - OMeTAD'}}]
+        self.do_table_cell(input, expected, HoleTransportLayer)
 

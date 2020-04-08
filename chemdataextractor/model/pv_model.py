@@ -248,6 +248,11 @@ common_dyes = (
     I("(E)-3-(6-(4-(bis(5,7-dibutoxy-9,9-dimethyl-9H-fluoren-2-yl)amino)phenyl)-4,4-dihexyl-4H-cyclopenta[2,1-b:3,4-b']dithiophen-2-yl)-2-cyanoacrylic acid")
 ).add_action(join)
 
+common_perovskites = (
+    W('CH3NH3PbI3')
+
+).add_action(join)
+
 exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))
 dye_loading_unit = Optional(W('(')) + exponent + I('mol') + R('[cnmk]m[−-−‒‐‑]2') + Optional(W(')'))
 
@@ -414,3 +419,56 @@ class SentenceDyeLoading(AmounOfSubstanceDensityModel):
     specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
     exponent = None
     parsers = [AutoSentenceParserOptionalCompound(lenient=True)]
+
+
+# Separate classes for perovskites
+
+
+class Perovskite(BaseModel):
+    """Dye Model that identifies from alphanumerics"""
+    specifier = StringType(parse_expression=((I('perovskite') | (I('light') + I('harvester')) + Optional('material') )).add_action(join), required=True, contextual=False)
+    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class HoleTransportLayer(BaseModel):
+    """ Hole transporting layer of solar cell (replaces electrolyte)"""
+    specifier = StringType(parse_expression=( (W('HTL') | W('HCL') | W('HCM') | W('HTM') ) |
+        ( I('hole') + (I('conducting') | I('transport') | I('transporting')) + (I('material') | I('layer')))
+         ).add_action(join), required=True, contextual=False)
+    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class ElectronTransportLayer(BaseModel):
+    """ Electron transporting layer of solar cell (usual term for semiconductor here.)"""
+    specifier = StringType(parse_expression=( (W('ETL') | W('ECL') | W('ECM') | W('ETM') ) |
+        ( I('electon') + (I('conducting') | I('transport') | I('transporting')) + (I('material') | I('layer')))
+         ).add_action(join), required=True, contextual=False)
+    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class PerovskiteSolarCell(BaseModel):
+    """ Class for perovskite photovoltaic devices. Uses a number of automatic parsers."""
+
+    specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
+
+    voc = ModelType(OpenCircuitVoltage, required=False, contextual=False)
+    ff = ModelType(FillFactor, required=False, contextual=False)
+    pce = ModelType(PowerConversionEfficiency, required=False, contextual=False)
+    jsc = ModelType(ShortCircuitCurrentDensity, required=False, contextual=False)
+    ref = ModelType(Reference, required=False, contextual=False)
+    counter_electrode = ModelType(CounterElectrode, required=False, contextual=False)
+    etl = ModelType(ElectronTransportLayer, required=False, contextual=False) # Electron_transport_layer
+    htl = ModelType(HoleTransportLayer, required=False, contextual=False) # Hole trasport layer
+    # ADd for interfacial layer? Or is this too specific / variable?
+    perovskite = ModelType(Perovskite, required=False, contextual=False)
+    active_area = ModelType(ActiveArea, required=False, contextual=False)
+    solar_simulator = ModelType(SimulatedSolarLightIntensity, required=False, contextual=True)
+    substrate = ModelType(Substrate, required=False, contextual=False)
+    charge_transfer_resisitance = ModelType(ChargeTransferResistance, required=False, contextual=False)
+    series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
+    exposure_time = ModelType(ExposureTime, required=False, contextual=True)
+
+    parsers = [AutoTableParserOptionalCompound()]
