@@ -383,3 +383,46 @@ class TestPerovskiteCellTable(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'Spiro - OMeTAD'}}]
         self.do_table_cell(input, expected, HoleTransportLayer)
 
+
+class TestPerovskiteCellSentence(unittest.TestCase):
+
+    def do_sentence(self, input, expected, model):
+        sentence = Sentence(input)
+        sentence.models = [model]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(expected, output)
+
+    def test_hole_transport_layer_sentence_1(self):
+        text = 'A HTM of spiro-OMeTAD was used.'
+        expected = [{'HoleTransportLayer': {'raw_value': 'spiro - OMeTAD', 'specifier': 'HTM'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_hole_transport_layer_sentence_2(self):
+        text = 'A HTL of spiro-OMeTAD was used.'
+        expected = [{'HoleTransportLayer': {'raw_value': 'spiro - OMeTAD', 'specifier': 'HTL'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+
+    def test_hole_transport_layer_sentence_3(self):
+        text = ' Summary of photovoltaic parameters of the fully-vacuum-processed perovskite solar cells using 5.5 nm thick C60 ESLs, 370 nm thick CH3NH3PbI3 films and CuPc HSLs with different thicknesses measured under the reverse voltage scanning'
+        expected = [{'HoleTransportLayer': {'raw_value': 'CuPc', 'specifier': 'HSLs'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_active_area_and_counter_electrode(self):
+        text = 'The active area of the cells defined by the Au electrodes were 0.08 cm2. '
+        expected = [{'ActiveArea': {'raw_units': 'cm2',
+                 'raw_value': '0.08',
+                 'specifier': 'active area',
+                 'units': '(10^-4.0) * Meter^(2.0)',
+                 'value': [0.08]}},
+        {'CounterElectrode': {'raw_value': 'Au', 'specifier': 'electrodes'}}]
+        sentence = Sentence(text)
+        sentence.models = [ActiveArea, CounterElectrode]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+

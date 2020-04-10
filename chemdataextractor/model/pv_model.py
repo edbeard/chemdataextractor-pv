@@ -61,6 +61,12 @@ common_redox_couples = (
     I('I-') + W('/') + I('I3-')
 ).add_action(join)
 
+common_counter_electrodes = (
+    I('gold') | W('Ag') |  # gold
+    I('silver') | W('Au') | # silver
+    I('platinum') | W('Pt') # platinum
+)
+
 not_dyes = common_substrates | common_spectra | common_semiconductors | common_redox_couples
 
 common_dyes = (
@@ -250,7 +256,14 @@ common_dyes = (
 
 common_perovskites = (
     W('CH3NH3PbI3')
+).add_action(join)
 
+common_htls = (
+    (I('spiro') + R('[−−-]') + W('OMeTAD')) |
+    W('PEDOT:PSS') |
+    (W('Li') + R('[−−-]') + I('TFSI') ) |
+     W('TBP') |
+    W('CuPc')
 ).add_action(join)
 
 exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))
@@ -305,8 +318,8 @@ class DyeLoading(AmounOfSubstanceDensityModel):
 
 class CounterElectrode(BaseModel):
     specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?')).add_action(join) | Not(I('PCE')) + R('CE(s)?')), required=True)
-    raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk'))).add_action(join), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
+    raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class SemiconductorThickness(LengthModel):
@@ -324,7 +337,7 @@ class Semiconductor(BaseModel):
 
 class ActiveArea(AreaModel):
     specifier = StringType(parse_expression=((I('active') + I('area')).add_action(join)), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class SimulatedSolarLightIntensity(IrradianceModel):
@@ -427,26 +440,26 @@ class SentenceDyeLoading(AmounOfSubstanceDensityModel):
 class Perovskite(BaseModel):
     """Dye Model that identifies from alphanumerics"""
     specifier = StringType(parse_expression=((I('perovskite') | (I('light') + I('harvester')) + Optional('material') )).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
+    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')) )| common_perovskites).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class HoleTransportLayer(BaseModel):
     """ Hole transporting layer of solar cell (replaces electrolyte)"""
-    specifier = StringType(parse_expression=( (W('HTL') | W('HCL') | W('HCM') | W('HTM') ) |
-        ( I('hole') + (I('conducting') | I('transport') | I('transporting')) + (I('material') | I('layer')))
+    specifier = StringType(parse_expression=( R('HTLs?') | R('HCLs?') | R('HCMs?') | R('HTMs?') | R('HSLs?') |
+        ( I('hole') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer')))
          ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
+    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class ElectronTransportLayer(BaseModel):
     """ Electron transporting layer of solar cell (usual term for semiconductor here.)"""
-    specifier = StringType(parse_expression=( (W('ETL') | W('ECL') | W('ECM') | W('ETM') ) |
-        ( I('electon') + (I('conducting') | I('transport') | I('transporting')) + (I('material') | I('layer')))
+    specifier = StringType(parse_expression=( R('ETLs?') | W('ECLs?') | W('ECMs?') | W('ETMs?') | W('ESLs?') |
+        ( I('electon') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer')))
          ).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
-    parsers = [AutoTableParserOptionalCompound()]
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class PerovskiteSolarCell(BaseModel):
