@@ -259,12 +259,18 @@ common_perovskites = (
 ).add_action(join)
 
 common_htls = (
-    (I('spiro') + R('[−−-]') + W('OMeTAD')) |
+    (I('spiro') + R('[−−-]') + (W('OMeTAD') | W('MeOTAD'))) |
     W('PEDOT:PSS') |
     (W('Li') + R('[−−-]') + I('TFSI') ) |
      W('TBP') |
     W('CuPc')
 ).add_action(join)
+
+etl_rules = (
+    I('c-TiO2')
+).add_action(join)
+
+common_etls = common_semiconductors | etl_rules
 
 exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))
 dye_loading_unit = Optional(W('(')) + exponent + I('mol') + R('[cnmk]m[−-−‒‐‑]2') + Optional(W(')'))
@@ -458,7 +464,7 @@ class ElectronTransportLayer(BaseModel):
     specifier = StringType(parse_expression=( R('ETLs?') | W('ECLs?') | W('ECMs?') | W('ETMs?') | W('ESLs?') |
         ( I('electon') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer')))
          ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
