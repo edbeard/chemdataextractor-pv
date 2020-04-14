@@ -255,7 +255,8 @@ common_dyes = (
 ).add_action(join)
 
 common_perovskites = (
-    W('CH3NH3PbI3')
+    W('CH3NH3PbI3') |
+    W('CH6I3NPb')
 ).add_action(join)
 
 common_htls = (
@@ -263,11 +264,74 @@ common_htls = (
     W('PEDOT:PSS') |
     (W('Li') + R('[−−-]') + I('TFSI') ) |
      W('TBP') |
-    W('CuPc')
+    W('CuPc') |
+    I("Spiro-OMeTAD") |
+    I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
+    I("C81H68N4O8") |
+    I("Spiro-MeOTAD") |
+    I("N7′-octakis(4-methoxyphenyl)-9,9′-spirobi[9H-fluorene]-2,2′,7,7′-tetramine") |
+    I("Cuprous thiocyanate") |
+    I("Copper(I) thiocyanate") |
+    I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
+    I("CCuNS") |
+    I("EH44") |
+    I("9-(2-Ethylhexyl)-N,N,N,N-tetrakis(4-methoxyphenyl)- 9H-carbazole-2,7-diamine)") |
+    I("C48H51N3O4") |
+    I("Poly-TPD") |
+    I("4-butyl-N,N-diphenylaniline") |
+    I("C22H23N") |
+    I("X59") |
+    I("Spiro[9H-fluorene-9,9′-[9H]xanthene]-2,7-diamine") |
+    I("N,N,N′,N′-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9′-xanthene]-2,7-diamine") |
+    I("2-N,2-N,7-N,7-N-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9'-xanthene]-2,7-diamineC53H42N2O5") |
+    I("TFB") |
+    I("N-(4-Butan-2-ylphenyl)-4-methyl-N-[4-(7-methyl-9,9-dioctylfluoren-2-yl)phenyl]aniline") |
+    I("C53H67N")
 ).add_action(join)
 
 etl_rules = (
-    I('c-TiO2')
+        I("titanium dioxide") |
+        I("TiO2") |
+        I("zinc oxide") |
+        I("ZnO") |
+        I("tin dioxide") |
+        I("stannic oxide") |
+        I("SnO2") |
+        I("silicon dioxide") |
+        I("SiO2") |
+        I("nickel oxide") |
+        I("NiO") |
+        I("zirconium dioxide") |
+        I("ZrO2") |
+        I("poly(triarylamine)") |
+        I("PTAA") |
+        I("phenyl-C61-butyric acid methyl ester") |
+        I("PCBM") |
+        I("m-TiO2") |
+        I("mesoporous titanium dioxide") |
+        I("c-TiO2") |
+        I("compact titanium dioxide") |
+        I("MgO/TiO2") |
+        I("Al2O3/TiO2") |
+        I("ZnO/TiO2") |
+        I("TiO2/MgO") |
+        I("WO3/TiO2") |
+        I("np-TiO2") |
+        I("titanium dioxide nanoparticles") |
+        I("TiO2 nanoparticles") |
+        I("Al2O3/ZnO") |
+        I("ITO/ZnO") |
+        I("ITO/Al2O3") |
+        I("ITO/V2O5") |
+        I("ITO/TiO2") |
+        I("aluminum doped zinc oxide") |
+        I("AZO") |
+        I("hafnium(IV) oxide") |
+        I("HfO2") |
+        I("polyethyleneimine / titanium dioxide") |
+        I("PEI/TiO2") |
+        I("polyethyleneimine / zinc oxide") |
+        I("PEI/ZnO")
 ).add_action(join)
 
 common_etls = common_semiconductors | etl_rules
@@ -462,7 +526,9 @@ class HoleTransportLayer(BaseModel):
 class ElectronTransportLayer(BaseModel):
     """ Electron transporting layer of solar cell (usual term for semiconductor here.)"""
     specifier = StringType(parse_expression=( R('ETLs?') | W('ECLs?') | W('ECMs?') | W('ETMs?') | W('ESLs?') |
-        ( I('electon') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer')))
+        ( I('electron') + Optional(I('[−−-]'))
+          + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection') | I('extraction') | I('collection'))
+          + (I('material') | I('layer')))
          ).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
