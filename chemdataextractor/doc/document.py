@@ -514,7 +514,7 @@ class Document(BaseDocument):
     def metadata(self):
         """Return metadata information
         """
-        return [el for el in self.elements if isinstance(el, MetaData)][0]
+        return [el for el in self.elements if isinstance(el, MetaData)]
 
 
     @property

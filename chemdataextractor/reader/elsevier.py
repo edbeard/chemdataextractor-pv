@@ -18,13 +18,19 @@ from ..scrape.clean import clean, Cleaner
 from ..doc.table import Cell, Table
 from ..doc.text import Caption
 from ..doc.meta import MetaData
+from ..doc.document import Document
+from ..doc.text import Title, Heading, Paragraph, Caption, Citation, Footnote, Text, Sentence, Cell
+from ..errors import ReaderError
 from .markup import XmlReader
 from lxml import etree
+from collections import defaultdict
 import re
 
 # XML stripper that removes the tags around numbers in chemical formulas
-strip_els_xml = Cleaner(strip_xpath='.//ce:inf | .//ce:italic | .//ce:bold | .//ce:formula | .//mml:* | .//ce:sup | .//ce:table//ce:sup',
-                        kill_xpath='.//ce:cross-ref//ce:sup | .//ce:cross-ref | .//ce:cross-refs')
+strip_els_xml = Cleaner(
+    strip_xpath='.//ce:inf | .//ce:italic | .//ce:bold | .//ce:formula | .//mml:* | .//ce:sup | .//ce:table//ce:sup',
+    kill_xpath='.//ce:cross-ref//ce:sup | .//ce:cross-ref | .//ce:cross-refs')
+
 
 def fix_elsevier_xml_whitespace(document):
     """ Fix tricky xml tags"""
@@ -78,7 +84,7 @@ def els_xml_whitespace(document):
         if str(el.tail).isspace():
             el.tail = ''
     # debug, check the document
-    #print(etree.tostring(document, pretty_print=True))
+    # print(etree.tostring(document, pretty_print=True))
     # sys.exit()
     return document
 
@@ -132,11 +138,11 @@ class ElsevierXmlReader(XmlReader):
     metadata_lastpage_css = 'xocs|last-lp'
     metadata_doi_css = 'xocs|doi, xocs|eii'
     metadata_pii_css = 'xocs|pii-unformatted'
+    metadata2_css = 'ja|head'
 
-    
-    ignore_css = 'ce|bibliography, ce|acknowledgment, ce|correspondence, ce|author, ce|doi, ja|jid, ja|aid, ce|pii, xocs|oa-sponsor-type, xocs|open-access, default|openaccess,'\
-                 'default|openaccessArticle, dc|format, dc|creator, dc|identifier,'\
-                'default|eid, default|pii, xocs|meta, xocs|ref-info, default|scopus-eid,'\
+    ignore_css = 'ce|bibliography, ce|acknowledgment, ce|correspondence, ce|author, ce|doi, ja|jid, ja|aid, ce|pii, xocs|oa-sponsor-type, xocs|open-access, default|openaccess,' \
+                 'default|openaccessArticle, dc|format, dc|creator, dc|identifier,' \
+                 'default|eid, default|pii, xocs|meta, xocs|ref-info, default|scopus-eid,' \
                  'xocs|normalized-srctitle,' \
                  'xocs|eid, xocs|hub-eid, xocs|normalized-first-auth-surname,' \
                  'xocs|normalized-first-auth-initial, xocs|refkeys,' \
@@ -156,41 +162,100 @@ class ElsevierXmlReader(XmlReader):
         if b'xmlns="http://www.elsevier.com/xml/svapi/article/dtd"' in fstring:
             return True
         return False
-    
+
+    def parse(self, fstring):
+
+        root = self._make_tree(fstring)
+        self.root = root
+
+        if root is None:
+            raise ReaderError
+
+        root = self._css(self.root_css, root)[0]
+        for cleaner in self.cleaners:
+            cleaner(root)
+        specials = {}
+        refs = defaultdict(list)
+        titles = self._css(self.title_css, root)
+        headings = self._css(self.heading_css, root)
+        figures = self._css(self.figure_css, root)
+        tables = self._css(self.table_css, root)
+        citations = self._css(self.citation_css, root)
+        references = self._css(self.reference_css, root)
+        ignores = self._css(self.ignore_css, root)
+        metadata = self._css(self.metadata_css, root)
+        metadata2 = self._css(self.metadata2_css, root)  # Parse remaining metadata info from document header
+        for reference in references:
+            refs[reference.getparent()].extend(self._parse_reference(reference))
+        for ignore in ignores:
+            specials[ignore] = []
+        for title in titles:
+            specials[title] = self._parse_text(title, element_cls=Title, refs=refs, specials=specials)
+        for heading in headings:
+            specials[heading] = self._parse_text(heading, element_cls=Heading, refs=refs, specials=specials)
+        for figure in figures:
+            specials[figure] = self._parse_figure(figure, refs=refs, specials=specials)
+        for table in tables:
+            specials[table] = self._parse_table(table, refs=refs, specials=specials)
+        for citation in citations:
+            specials[citation] = self._parse_text(citation, element_cls=Citation, refs=refs, specials=specials)
+        for md in metadata:
+            specials[md] = self._parse_metadata(md, refs=refs, specials=specials)
+        for md2 in metadata2:
+            specials[md2] = self._parse_metadata2(md2, refs=refs, specials=specials)
+
+        elements = self._parse_element(root, specials=specials, refs=refs)
+        return Document(*elements)
+
     def _parse_metadata(self, el, refs, specials):
-        title = self._css(self.metadata_title_css, el)
-        authors = self._css(self.metadata_author_css,el)
-        publisher = self._css(self.metadata_publisher_css,el)
-        journal = self._css(self.metadata_journal_css,el)
-        date = self._css(self.metadata_date_css,el)
-        language = self._css(self.metadata_language_css,el)
-        volume = self._css(self.metadata_volume_css,el)
-        issue = self._css(self.metadata_issue_css,el)
-        firstpage =self._css(self.metadata_firstpage_css,el)
-        lastpage=self._css(self.metadata_lastpage_css,el)
-        doi = self._css(self.metadata_doi_css,el)
+        publisher = self._css(self.metadata_publisher_css, el)
+        journal = self._css(self.metadata_journal_css, el)
+        date = self._css(self.metadata_date_css, el)
+        language = self._css(self.metadata_language_css, el)
+        volume = self._css(self.metadata_volume_css, el)
+        issue = self._css(self.metadata_issue_css, el)
+        firstpage = self._css(self.metadata_firstpage_css, el)
+        lastpage = self._css(self.metadata_lastpage_css, el)
+        doi = self._css(self.metadata_doi_css, el)
         pii = self._css(self.metadata_pii_css, el)
-        pdf_url = self._css(self.metadata_pdf_url_css,el)
-        html_url = self._css(self.metadata_html_url_css,el)
+        pdf_url = self._css(self.metadata_pdf_url_css, el)
+        html_url = self._css(self.metadata_html_url_css, el)
 
         metadata = {
-                '_title': title[0].text if title else None,
-                '_authors': [i.text for i in authors] if authors else None,
-                '_publisher': publisher[0].text if publisher else None,
-                '_journal': journal[0].text if journal else None,
-                '_date': date[0].text if date else None,
-                '_language': language[0].text if language else None,
-                '_volume': volume[0].text if volume else None,
-                '_issue': issue[0].text if issue else None,
-                '_firstpage': firstpage[0].text if firstpage else None,
-                '_lastpage': lastpage[0].text if lastpage else None,
-                '_doi': doi[0].text if doi else None,
-                '_pdf_url': self.url_prefix + pdf_url[0].text if pdf_url else None,
-                '_html_url': self.url_prefix + html_url[0].text if html_url else self.url_prefix + pii[0].text
-                }
+            '_publisher': publisher[0].text if publisher else None,
+            '_journal': journal[0].text if journal else None,
+            '_date': date[0].text if date else None,
+            '_language': language[0].text if language else None,
+            '_volume': volume[0].text if volume else None,
+            '_issue': issue[0].text if issue else None,
+            '_firstpage': firstpage[0].text if firstpage else None,
+            '_lastpage': lastpage[0].text if lastpage else None,
+            '_doi': doi[0].text if doi else None,
+            '_pdf_url': self.url_prefix + pdf_url[0].text if pdf_url else None,
+            '_html_url': self.url_prefix + html_url[0].text if html_url else self.url_prefix + pii[0].text
+        }
         meta = MetaData(metadata)
         return [meta]
-    
+
+    def _parse_metadata2(self, el, refs, specials):
+        title = self._css('ce|title', el)
+        authors = self._css('ce|author', el)
+
+        if authors:
+            author_list = []
+            for author in authors:
+                first_name = self._css('ce|given-name', author)[0].text
+                surname = self._css('ce|surname', author)[0].text
+                text = first_name + ' ' + surname
+                author_list.append(text)
+
+        metadata = {
+            '_title': title[0].text if title else None,
+            '_authors': author_list if authors else None
+        }
+        meta = MetaData(metadata)
+        return [meta]
+
     def _parse_table_rows(self, els, refs, specials):
         hdict = {}
         for row, tr in enumerate(els):
@@ -219,7 +284,7 @@ class ElsevierXmlReader(XmlReader):
             r.extend([Cell('')] * (len(max(rows, key=len)) - len(r)))
         rows = [r for r in rows if any(r)]
         return rows
-    
+
     def _parse_figure_links(self, el):
         """Parse awkward elsevier figure links
         """
