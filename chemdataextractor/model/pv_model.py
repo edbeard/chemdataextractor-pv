@@ -8,10 +8,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import six
+import copy
+
 import logging
 import re
 
-from .base import BaseModel, StringType, ModelType
+from .base import BaseModel, StringType, ModelType, ListType
 from .units.substance_amount_density import AmounOfSubstanceDensityModel
 from .units.area import AreaModel
 from .units.current_density import CurrentDensityModel
@@ -445,6 +448,23 @@ class ExposureTime(TimeModel):
 
 class PhotovoltaicCell(BaseModel):
     """ Class for photovoltaic devices. Uses a number of automatic parsers."""
+
+    def __init__(self, **raw_data):
+        """"""
+        self._values = {}
+        for key, value in six.iteritems(raw_data):
+            setattr(self, key, value)
+        # Set defaults
+        for key, field in six.iteritems(self.fields):
+            if key not in raw_data:
+                setattr(self, key, copy.copy(field.default))
+        self._record_method = None
+        self.was_updated = self._updated
+        self.calculated_properties = {}
+
+    def set_calculated_properties(self, prop_key, property):
+        self.calculated_properties[prop_key] = property
+
 
     specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
 
