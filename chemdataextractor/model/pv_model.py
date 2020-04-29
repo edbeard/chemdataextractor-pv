@@ -15,7 +15,7 @@ import logging
 import re
 
 from .base import BaseModel, StringType, ModelType, ListType
-from .units.substance_amount_density import AmounOfSubstanceDensityModel
+from .units.substance_amount_density import AmountOfSubstanceDensityModel
 from .units.area import AreaModel
 from .units.current_density import CurrentDensityModel
 from .units.electric_potential import ElectricPotentialModel
@@ -384,7 +384,7 @@ class RedoxCouple(BaseModel):
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
-class DyeLoading(AmounOfSubstanceDensityModel):
+class DyeLoading(AmountOfSubstanceDensityModel):
     specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
@@ -518,7 +518,7 @@ class SentenceSemiconductor(BaseModel):
     parsers = [ AutoSentenceParserOptionalCompound()]
 
 
-class SentenceDyeLoading(AmounOfSubstanceDensityModel):
+class SentenceDyeLoading(AmountOfSubstanceDensityModel):
     specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
     exponent = None
     parsers = [AutoSentenceParserOptionalCompound(lenient=True)]

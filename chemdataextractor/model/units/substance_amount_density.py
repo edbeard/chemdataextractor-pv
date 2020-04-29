@@ -18,23 +18,23 @@ log = logging.getLogger(__name__)
 
 
 # Creating the current density unit
-class AmounOfSubstanceDensity(Dimension):
+class AmountOfSubstanceDensity(Dimension):
     """ Defining the current density unit"""
     constituent_dimensions = AmountOfSubstance() * Length()**(-2)
 
 
-class AmounOfSubstanceDensityModel(QuantityModel):
+class AmountOfSubstanceDensityModel(QuantityModel):
     """Current Density model"""
-    dimensions = AmounOfSubstanceDensity()
+    dimensions = AmountOfSubstanceDensity()
 
 
-class AmounOfSubstanceDensityUnit(Unit):
+class AmountOfSubstanceDensityUnit(Unit):
 
     def __init__(self, magnitude=0.0, powers=None):
-        super(AmounOfSubstanceDensityUnit, self).__init__(AmounOfSubstanceDensity(), magnitude, powers)
+        super(AmountOfSubstanceDensityUnit, self).__init__(AmountOfSubstanceDensity(), magnitude, powers)
 
 
-class MolPerMeterSquared(AmounOfSubstanceDensityUnit):
+class MolPerMeterSquared(AmountOfSubstanceDensityUnit):
     """
     Class for amp per meter squared.
     """
@@ -53,5 +53,5 @@ class MolPerMeterSquared(AmounOfSubstanceDensityUnit):
 
 
 units_dict = {R('[Mm](ol)(e(s)?)?( )?cm[−−-]2', group=0): MolPerMeterSquared}
-AmounOfSubstanceDensity.units_dict.update(units_dict)
-AmounOfSubstanceDensity.standard_units = MolPerMeterSquared()
+AmountOfSubstanceDensity.units_dict.update(units_dict)
+AmountOfSubstanceDensity.standard_units = MolPerMeterSquared()
