@@ -47,7 +47,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = [{'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}]
         self.do_table_cell(input, expected, Dye)
 
-    def test_sentizers_specifier_dye(self):
+    def test_sensitizers_specifier_dye(self):
         """ Check that cases containing the units for dye loading in the heading are ignored."""
         input = [['Sensitizers', 'Adsorbed dye (10−7 mol cm−2)'], ['N719', '2.601']]
         expected = [{'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}}]
@@ -245,6 +245,11 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
                                  'value': [7.47]}}]
 
         self.do_table_cell(input, expected, ShortCircuitCurrentDensity)
+
+    def test_dye_omitted_by_units(self):
+        input = [['Counter Electrode', 'Adsorbed dye (108 /cm2)'], ['Pt', '0.86']]
+        expected = []
+        self.do_table_cell(input, expected, Dye)
 
 
 class TestPhotovoltaicCellText(unittest.TestCase):
