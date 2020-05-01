@@ -553,7 +553,7 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             unit_element = Group(
                 construct_unit_element(self.model.dimensions).with_condition(match_dimensions_of(self.model))('raw_units'))
 
-            specifier = self.model.specifier.parse_expression('specifier') + Optional(W('/') | W(',') | T(',')) + Optional(
+            specifier = self.model.specifier.parse_expression('specifier') + Optional(W('/') | W(',') | T(',') | W(')')) + Optional(
                 unit_element)
             value_phrase = ((value_element_plain_with_exponent() | value_element_plain() | no_value_element) + Optional(unit_element))
             entities.append(specifier)

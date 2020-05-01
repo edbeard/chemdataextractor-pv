@@ -42,11 +42,13 @@ common_substrates = (
 ).add_action(join)
 
 common_spectra = (
-    I('AM') + (
+     (Optional(I('AM')) + (
         I('1.5G') |
-        I('1.5')
-    ) |
-    I('AM1.5G')
+        I('1.5') |
+        (W('1') + W(':') + W('5') + Optional(W('G')) )
+     )  + Optional(I('AM')) ) |
+    I('AM1.5G') |
+    I('AM1.5')
 ).add_action(join)
 
 common_semiconductors = (
@@ -367,7 +369,7 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?')) + Not(I('loading') |
+    specifier = StringType(parse_expression=((I('dye') | R('[Ss]ensiti[zs]e[rd](s)?')) + Not(I('loading') |
                                                 dye_loading_unit)).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
@@ -414,7 +416,7 @@ class ActiveArea(AreaModel):
 
 
 class SimulatedSolarLightIntensity(IrradianceModel):
-    specifier = StringType(parse_expression=(I('irradiance') | I('illumination') | (I('light') + I('intensity') + Optional(I('of'))).add_action(join)), required=True)
+    specifier = StringType(parse_expression=(I('irradiance') | I('illumination') | I('solar') + I('simulator')  | (I('light') + I('intensity') + Optional(I('of'))).add_action(join)), required=True)
     spectra = StringType(parse_expression=common_spectra)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 

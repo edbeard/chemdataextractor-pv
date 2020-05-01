@@ -149,12 +149,11 @@ class BaseTableParser(BaseParser):
         :rtype: Iterator[:class:`chemdataextractor.model.base.BaseModel`]
         """
         # import lxml
-        # import pprint
-        # pp = pprint.PrettyPrinter(indent=4)
+        # from pprint import pprint
         if self.root is not None:
             for result in self.root.scan(cell.tagged_tokens):
                 try:
-                    # print(lxml.etree.tostring(result[0]))
+                    # pprint(lxml.etree.tostring(result[0]))
                     for model in self.interpret(*result):
                         yield model
                 except (AttributeError, TypeError) as e:

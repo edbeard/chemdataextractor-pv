@@ -47,6 +47,12 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = [{'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}]
         self.do_table_cell(input, expected, Dye)
 
+    def test_sentizers_specifier_dye(self):
+        """ Check that cases containing the units for dye loading in the heading are ignored."""
+        input = [['Sensitizers', 'Adsorbed dye (10−7 mol cm−2)'], ['N719', '2.601']]
+        expected = [{'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}}]
+        self.do_table_cell(input, expected, Dye)
+
     # Tests for the specfic property extraction
     def test_open_circuit_voltage_table(self):
         input = [['Dye', 'Voc (V)'], ['N719', '0.89']]
@@ -252,6 +258,7 @@ class TestPhotovoltaicCellText(unittest.TestCase):
         output = []
         for record in sentence.records:
             output.append(record.serialize())
+        print(output)
         self.assertEqual(output, expected)
 
     def do_paragraph(self, input, expected, model):
@@ -303,6 +310,11 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
         self.do_sentence(input, expected, SimulatedSolarLightIntensity)
 
+    def test_solar_irradiance_sentence_5(self):
+        input = ' The efficiency of the solar cells fabricated is determined from the photocurrent versus voltage (I–V) characteristics measured by using solar simulator under 1:5 AM (ORIEL Sol1A). '
+        expected = [{'SimulatedSolarLightIntensity': {'specifier': 'solar',
+                                   'spectra': '1 : 5 AM'}}]
+        self.do_sentence(input, expected, SimulatedSolarLightIntensity)
 
     def test_semiconductor_thickness_sentence(self):
         input = '8 μm thick ZnO anodes'
