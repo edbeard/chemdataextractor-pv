@@ -102,7 +102,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
     def test_redox_couple_table(self):
         input = [['Dye', 'Redox couple'], ['N719', 'I-/I3-']]
-        expected = [{'RedoxCouple': {'specifier': 'Redox couple', 'raw_value': 'I- / I3-'}}]
+        expected = [{'RedoxCouple': {'specifier': 'Redox couple', 'raw_value': 'I-/I3-'}}]
 
         self.do_table_cell(input, expected, RedoxCouple)
 
