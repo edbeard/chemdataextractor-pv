@@ -358,6 +358,24 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
         self.do_sentence(input, expected, SentenceDyeLoading)
 
+    def test_redox_couple_sentence(self):
+        input = ' Obviously, the Epp for two electrodes is almost identical, while the peak current density of the NGF electrode is a bit higher than that of the Pt electrode, indicating that NGFs possess superior electrocatalytic activity for the regeneration of the I−/I3− redox couple.'
+        expected = [{'RedoxCouple': {'raw_value': 'I−/I3−', 'specifier': 'redox couple'}}]
+
+        self.do_sentence(input, expected, RedoxCouple)
+
+    def test_redox_couple_sentence2(self):
+        input = 'The peak to peak voltage separation (Epp) of reaction (1) corresponds to the electrocatalytic activity of the CEs for I−/I3− redox reactions, with the standard electrochemical rate constant inversely correlated.'
+        expected = [{'RedoxCouple': {'raw_value': 'I−/I3−', 'specifier': 'redox reactions'}}]
+
+        self.do_sentence(input, expected, RedoxCouple)
+
+    def test_redox_couple_sentence2(self):
+        input = 'Cyclic voltammetry (CV) for I3−/I− redox couple was carried out in a three-electrode system in an argon-purged acetonitrile solution which contained 0.1 M LiClO4, 10 mM LiI, and 1 mM I2 at a scan rate of 10 mV s−1 using a electrochemical analyzer (CHI630, Chenhua, Shanghai)'
+        expected = [{'RedoxCouple': {'raw_value': 'I3−/I−', 'specifier': 'redox couple'}}]
+
+        self.do_sentence(input, expected, RedoxCouple)
+
 
 class TestPerovskiteCellTable(unittest.TestCase):
 

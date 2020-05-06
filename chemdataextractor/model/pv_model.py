@@ -25,7 +25,7 @@ from .units.ratio import RatioModel
 from .units.resistance import ResisitanceModel
 from .units.time import TimeModel
 from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not
-from ..parse.actions import join
+from ..parse.actions import join, merge
 from ..parse.cem import strict_chemical_label
 
 from ..model.units.quantity_model import DimensionlessModel
@@ -63,8 +63,16 @@ common_semiconductors = (
 common_redox_couples = (
     R('I[−−-]\/( )?I3[−−-]') |
     R('T2\/( )?T[−−-]') |
-    I('I-') + W('/') + I('I3-')
-).add_action(join)
+    I('I-') + W('/') + I('I3-') |
+    R('I[−−-]') + W('/') + R('I3[−−-]') |
+    W('T2') + W('/') + R('T[−−-]') |
+    R('I3[−−-]') + W('/') + R('I[−−-]') |
+    R('T[−−-]') + W('/') + W('T2') |
+    I('disulfide') + W('/') + I('thiolate') |
+    I('thiolate') + W('/') + I('disulfide')  |
+    I('triiodide') + W('/') + I('iodide') |
+    I('iodide') + W('/') + I('triiodide')
+).add_action(merge)
 
 common_counter_electrodes = (
     I('gold') | W('Ag') |  # gold
@@ -382,7 +390,7 @@ class Reference(DimensionlessModel):
 
 
 class RedoxCouple(BaseModel):
-    specifier = StringType(parse_expression=(I('redox') + R('[Cc]ouple(s)?')).add_action(join), required=True)
+    specifier = StringType(parse_expression=(I('redox') + (R('[Cc]ouple(s)?') | R('[Rr]eaction(s)?'))).add_action(join), required=True)
     raw_value = StringType(parse_expression=common_redox_couples, required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
