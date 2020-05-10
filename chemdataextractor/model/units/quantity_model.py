@@ -47,8 +47,11 @@ class QuantityModel(six.with_metaclass(_QuantityModelMeta, BaseModel)):
     raw_value = StringType(required=True, contextual=True)
     raw_units = StringType(required=True, contextual=True)
     value = ListType(FloatType(contextual=True), contextual=True, sorted=True)
+    std_value = ListType(FloatType(contextual=True), contextual=True, sorted=True)
     units = UnitType(contextual=True)
+    std_units = UnitType(contextual=True)
     error = FloatType(contextual=True)
+    std_error = FloatType(contextual=True)
     exponent = ListType(FloatType(contextual=True), contextual=True, sorted=True)
     dimensions = None
     specifier = StringType()

@@ -295,7 +295,7 @@ class AutoSentenceParser(BaseAutoParser, BaseSentenceParser):
 
         # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
         for field in self.model.fields:
-            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent']:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent', 'std_units', 'std_value', 'std_error']:
                 if self.model.__getattribute__(self.model, field).parse_expression is not None:
                     entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
 
@@ -350,7 +350,7 @@ class AutoTableParser(BaseAutoParser, BaseTableParser):
 
         # the optional, user-defined, entities of the model are added, they are tagged with the name of the field
         for field in self.model.fields:
-            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent']:
+            if field not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'specifier', 'exponent', 'std_units', 'std_value', 'std_error']:
                 if self.model.__getattribute__(self.model, field).parse_expression is not None:
                     entities.append(self.model.__getattribute__(self.model, field).parse_expression(field))
 

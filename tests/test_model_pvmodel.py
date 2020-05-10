@@ -370,7 +370,7 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
         self.do_sentence(input, expected, RedoxCouple)
 
-    def test_redox_couple_sentence2(self):
+    def test_redox_couple_sentence3(self):
         input = 'Cyclic voltammetry (CV) for I3−/I− redox couple was carried out in a three-electrode system in an argon-purged acetonitrile solution which contained 0.1 M LiClO4, 10 mM LiI, and 1 mM I2 at a scan rate of 10 mV s−1 using a electrochemical analyzer (CHI630, Chenhua, Shanghai)'
         expected = [{'RedoxCouple': {'raw_value': 'I3−/I−', 'specifier': 'redox couple'}}]
 
