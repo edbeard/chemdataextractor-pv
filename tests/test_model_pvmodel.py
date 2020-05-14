@@ -87,6 +87,17 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
         self.do_table_cell(input, expected, ShortCircuitCurrentDensity)
 
+    def test_short_circuit_current_density_table_3(self):
+        input = [['Dye', 'Jsc (mA·cm−2)'], ['N719', '4.56']]
+        expected = [{'ShortCircuitCurrentDensity': {'raw_units': '(mA·cm−2)',
+                                 'raw_value': '4.56',
+                                 'specifier': 'Jsc',
+                                 'units': '(10^1.0) * Ampere^(1.0)  '
+                                          'Meter^(-2.0)',
+                                 'value': [4.56]}}]
+
+        self.do_table_cell(input, expected, ShortCircuitCurrentDensity)
+
     def test_power_conversion_efficiency_table(self):
         input = [['Dye', 'PCE (%)'], ['N719', '7.50']]
         expected = [{'PowerConversionEfficiency': {'raw_value': '7.50', 'raw_units': '(%)', 'value': [7.5],

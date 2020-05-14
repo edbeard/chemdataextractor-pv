@@ -54,6 +54,5 @@ class AmpPerMeterSquared(CurrentDensityUnit):
 # CurrentDensity.units_dict = {}
 
 
-# units_dict = {R('(m)?A( )?cm[–\−−-]2', group=0): AmpPerMeterSquared}
+# units_dict = {R('(m)?A[·\s]?cm[–\−−-]2', group=0): AmpPerMeterSquared}
 # CurrentDensity.units_dict.update(units_dict)
-# CurrentDensity.standard_units = AmpPerMeterSquared()

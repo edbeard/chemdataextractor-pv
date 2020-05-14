@@ -405,6 +405,7 @@ def extract_units(string, dimensions, strict=False):
     string = string.replace("–", "-")
     string = string.replace("−", "-")
     string = string.replace(' ', '')
+    string = string.replace('·', '')
     if string[0] == '[' and string[-1] == ']':
         string = string[1:-1]
     # Split string at numbers, /s, and brackets, so we have the units tokenized into the right units for later processing stages.

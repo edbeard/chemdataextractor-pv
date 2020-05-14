@@ -59,7 +59,7 @@ def construct_unit_element(dimensions):
     # Handle all the units
     for element in dimensions.units_dict:
         units_regex += '(' + element.pattern + ')|'
-    units_regex += r'(\/)'
+    units_regex += r'(\/)|(·)'
     # Case when we have powers, or one or more units
     units_regex2 = units_regex + r'|([\+\-–−]?\d+(\.\d+)?)'
     units_regex2 += '))+$'
