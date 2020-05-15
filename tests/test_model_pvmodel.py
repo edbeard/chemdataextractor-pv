@@ -53,6 +53,16 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = [{'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}}]
         self.do_table_cell(input, expected, Dye)
 
+    def test_adsorbed_dye_not_identified(self):
+        input = [['Sensitizers', 'Adsorbed dye/μmol cm−2'], ['N719', '2.601']]
+        expected = [{'PhotovoltaicCell': {'dye': {'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}},
+                                          'dye_loading': {'DyeLoading': {'raw_value': '2.601', 'raw_units': 'μmolcm−2', 'value': [2.601],
+                                                                         'units': '(10^-2.0) * Meter^(-2.0)  Mol^(1.0)', 'specifier': 'Adsorbed dye'}}}},
+                    {'DyeLoading': {'raw_value': '2.601', 'raw_units': 'μmolcm−2',
+                                    'value': [2.601], 'units': '(10^-2.0) * Meter^(-2.0)  Mol^(1.0)', 'specifier': 'Adsorbed dye'}},
+                    {'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}}]
+        self.do_table_cell(input, expected, PhotovoltaicCell)
+
     # Tests for the specfic property extraction
     def test_open_circuit_voltage_table(self):
         input = [['Dye', 'Voc (V)'], ['N719', '0.89']]
@@ -369,6 +379,12 @@ class TestPhotovoltaicCellText(unittest.TestCase):
     def test_sentence_dye_sentence_2(self):
         input = "The experiment used a dye that we are not mentioning here, and used a TiO2 substrate."
         expected = [{'SentenceDye': {'specifier': 'dye'}}]
+
+        self.do_sentence(input, expected, SentenceDye)
+
+    def test_sentence_dye_sentence_3(self):
+        input = "The photovoltaic performances of the dye-sensitized solar cells with electrode of NP, NP-TNT-16 and NP-TNT-28 "
+        expected = []
 
         self.do_sentence(input, expected, SentenceDye)
 

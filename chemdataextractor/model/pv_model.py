@@ -33,6 +33,8 @@ from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOpti
 
 log = logging.getLogger(__name__)
 
+hyphens = R('[-‐‑⁃‒–—―]')
+
 # Models for Photovoltaic Properties
 common_substrates = (
     W('FTO') | (I('flourine') + Optional(I('doped')) + I('tin') + I('oxide')) |
@@ -396,7 +398,7 @@ class RedoxCouple(BaseModel):
 
 
 class DyeLoading(AmountOfSubstanceDensityModel):
-    specifier = StringType(parse_expression=((Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
+    specifier = StringType(parse_expression=(( (I('adsorbed') + I('dye')) | Optional(I('dye')) + (I('loading') | I('amount'))).add_action(join) | W('Γ') | W('Cm')), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
@@ -508,7 +510,7 @@ class SentenceDye(BaseModel):
     alphanumeric_label= R('^(([A-Z][\--–−]?)+\d{1,3})$')('labels')
     lenient_label = Not(not_dyes) + (alphanumeric_label | strict_chemical_label)
 
-    specifier = StringType(parse_expression=((I('dye') | R('sensiti[zs]e[rd]s?') | R('dsc(s)?', re.I)) + Not(I('loading'))).add_action(join), required=True, contextual=False)
+    specifier = StringType(parse_expression=((I('dye') + Not(Optional(hyphens) + I('sensitized'))| R('sensiti[zs]er(s)?') | R('dsc(s)?', re.I)) + Not(I('loading'))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(common_dyes | lenient_label), required=True)
     parsers = [AutoSentenceParserOptionalCompound()]
 

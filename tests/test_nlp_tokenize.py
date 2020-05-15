@@ -188,7 +188,6 @@ class TestWordTokenizer(unittest.TestCase):
         self.assertEqual(tokens, ['η', '(', '%', ')'])
 
 
-
 class TestChemTokenizer(unittest.TestCase):
     """Test the chemistry-aware word tokenizer."""
 
