@@ -34,7 +34,7 @@ class AreaUnit(Unit):
         super(AreaUnit, self).__init__(Area(), magnitude, powers)
 
 
-class MetersSquaredAreaUnit:
+class MetersSquaredAreaUnit(AreaUnit):
     """
     Class meter squared
     """
