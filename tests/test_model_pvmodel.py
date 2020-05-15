@@ -105,6 +105,20 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
         self.do_table_cell(input, expected, PowerConversionEfficiency)
 
+    def test_power_conversion_efficiency_table_2(self):
+        input = [['Dye', 'η(%)'], ['N719', '7.50']]
+        expected = [{'PowerConversionEfficiency': {'raw_value': '7.50', 'raw_units': '(%)', 'value': [7.5],
+                                                   'units': 'Percent^(1.0)', 'specifier': 'η'}}]
+
+        self.do_table_cell(input, expected, PowerConversionEfficiency)
+
+    def test_power_conversion_efficiency_table_3(self):
+        input = [['Dye', 'Efficiency (%)'], ['N719', '7.50']]
+        expected = [{'PowerConversionEfficiency': {'raw_value': '7.50', 'raw_units': '(%)', 'value': [7.5],
+                                                   'units': 'Percent^(1.0)', 'specifier': 'Efficiency'}}]
+
+        self.do_table_cell(input, expected, PowerConversionEfficiency)
+
     def test_fill_factor_table(self):
         input = [['Dye', 'FF '], ['N719', '55']]
         expected = [{'FillFactor': {'raw_value': '55', 'value': [55.0], 'specifier': 'FF'}}]

@@ -437,6 +437,7 @@ class ChemWordTokenizer(WordTokenizer):
         '‛',  # \u201b Single reversed quote
         '`',  # \u0060
         '´',  # \u00b4
+        'η', # Splitting eta when used as specifier for PCE
         # Primes
         # '′',  # \u2032
         # '″',  # \u2033

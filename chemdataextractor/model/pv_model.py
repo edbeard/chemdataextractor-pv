@@ -372,7 +372,7 @@ class FillFactor(DimensionlessModel):
 
 
 class PowerConversionEfficiency(RatioModel):
-    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff')), required=True, contextual=False, updatable=True)
+    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff') | I('efficiency')), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 

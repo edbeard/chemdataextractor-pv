@@ -181,6 +181,12 @@ class TestWordTokenizer(unittest.TestCase):
         additional_regex = re.compile('(?P<split>can)split')
         tokens = self.t.get_word_tokens(sent, additional_regex=[additional_regex])
         self.assertEqual(['See', 'if', 'we', 'can', 'split', 'this'], [token.text for token in tokens])
+        
+    def test_eta_bracket(self):
+        sent = Sentence('η(%)')
+        tokens = sent.raw_tokens
+        self.assertEqual(tokens, ['η', '(', '%', ')'])
+
 
 
 class TestChemTokenizer(unittest.TestCase):
