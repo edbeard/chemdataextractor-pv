@@ -17,6 +17,7 @@ import re
 from .base import BaseModel, StringType, ModelType, ListType
 from .units.substance_amount_density import AmountOfSubstanceDensityModel
 from .units.area import AreaModel
+from .units.current import ElectricalCurrentModel
 from .units.current_density import CurrentDensityModel
 from .units.electric_potential import ElectricPotentialModel
 from .units.irradiance import IrradianceModel
@@ -368,6 +369,10 @@ class ShortCircuitCurrentDensity(CurrentDensityModel):
     parsers = [AutoTableParserOptionalCompound()]
 
 
+class ShortCircuitCurrent(ElectricalCurrentModel):
+    specifier = StringType(parse_expression=I('Isc'), required=True, contextual=False, updatable=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
 class FillFactor(DimensionlessModel):
     specifier = StringType(parse_expression=(I('FF') | (I('fill') + I('factor')).add_action(join)), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
@@ -485,6 +490,7 @@ class PhotovoltaicCell(BaseModel):
     ff = ModelType(FillFactor, required=False, contextual=False)
     pce = ModelType(PowerConversionEfficiency, required=False, contextual=False)
     jsc = ModelType(ShortCircuitCurrentDensity, required=False, contextual=False)
+    isc = ModelType(ShortCircuitCurrent, required=False, contextual=False)
     dye = ModelType(Dye, required=False, contextual=False)
     ref = ModelType(Reference, required=False, contextual=False)
     redox_couple = ModelType(RedoxCouple, required=False, contextual=False)

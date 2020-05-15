@@ -19,7 +19,7 @@ from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensi
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
     ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
-    PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer
+    PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -107,6 +107,16 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
                                  'value': [4.56]}}]
 
         self.do_table_cell(input, expected, ShortCircuitCurrentDensity)
+
+    def test_short_circuit_current_table(self):
+        input = [['Dye', 'Isc [mA]'], ['N719', '4.56']]
+        expected = [{'ShortCircuitCurrent': {'raw_units': '[mA]',
+                                 'raw_value': '4.56',
+                                 'specifier': 'Isc',
+                                 'units': '(10^-3.0) * Ampere^(1.0)',
+                                 'value': [4.56]}}]
+
+        self.do_table_cell(input, expected, ShortCircuitCurrent)
 
     def test_power_conversion_efficiency_table(self):
         input = [['Dye', 'PCE (%)'], ['N719', '7.50']]
