@@ -23,7 +23,8 @@ from .units.electric_potential import ElectricPotentialModel
 from .units.irradiance import IrradianceModel
 from .units.length import LengthModel
 from .units.ratio import RatioModel
-from .units.resistance import ResisitanceModel
+from .units.resistance import ResistanceModel
+from .units.specific_resistance import SpecificResistanceModel
 from .units.time import TimeModel
 from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not
 from ..parse.actions import join, merge
@@ -449,12 +450,22 @@ class Substrate(BaseModel):
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
-class ChargeTransferResistance(ResisitanceModel):
+class ChargeTransferResistance(ResistanceModel):
     specifier = StringType(parse_expression=(R('Rct\d?') | R('Rk')), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
-class SeriesResistance(ResisitanceModel):
+class SeriesResistance(ResistanceModel):
+    specifier = StringType(parse_expression=W('Rs'), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class SpecificChargeTransferResistance(SpecificResistanceModel):
+    specifier = StringType(parse_expression=(R('Rct\d?') | R('Rk')), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class SpecificSeriesResistance(SpecificResistanceModel):
     specifier = StringType(parse_expression=W('Rs'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
@@ -501,8 +512,10 @@ class PhotovoltaicCell(BaseModel):
     solar_simulator = ModelType(SimulatedSolarLightIntensity, required=False, contextual=True)
     electrolyte = ModelType(Electrolyte, required=False, contextual=False)
     substrate = ModelType(Substrate, required=False, contextual=False)
-    charge_transfer_resisitance = ModelType(ChargeTransferResistance, required=False, contextual=False)
-    series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
+    charge_transfer_resistance = ModelType(ChargeTransferResistance, required=False, contextual=False)
+    series_resistance = ModelType(SeriesResistance, required=False, contextual=False)
+    specific_charge_transfer_resistance = ModelType(SpecificChargeTransferResistance, required=False, contextual=False)
+    specific_series_resistance = ModelType(SpecificSeriesResistance, required=False, contextual=False)
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)
 
     parsers = [AutoTableParserOptionalCompound()]#, AutoSentenceParserOptionalCompound()]

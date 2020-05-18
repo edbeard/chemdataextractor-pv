@@ -17,23 +17,23 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class Resisitance(Dimension):
+class Resistance(Dimension):
     """ Defining the resistance."""
     constituent_dimensions = ElectricPotential() / ElectricalCurrent()
 
 
-class ResisitanceModel(QuantityModel):
+class ResistanceModel(QuantityModel):
     """Irradiance model"""
-    dimensions = Resisitance()
+    dimensions = Resistance()
 
 
-class ResisitanceUnit(Unit):
+class ResistanceUnit(Unit):
 
     def __init__(self, magnitude=0.0, powers=None):
-        super(ResisitanceUnit, self).__init__(Resisitance(), magnitude, powers)
+        super(ResistanceUnit, self).__init__(Resistance(), magnitude, powers)
 
 
-class Ohm(ResisitanceUnit):
+class Ohm(ResistanceUnit):
     """
     Class defining the ohm
     """
@@ -52,5 +52,5 @@ class Ohm(ResisitanceUnit):
 
 
 units_dict = {R('(Ω)|(ohm(s)?)', group=0): Ohm}
-Resisitance.units_dict.update(units_dict)
-Resisitance.standard_units = Ohm()
+Resistance.units_dict.update(units_dict)
+Resistance.standard_units = Ohm()

@@ -19,7 +19,8 @@ from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensi
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
     ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
-    PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent
+    PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent, SpecificChargeTransferResistance, \
+    SpecificSeriesResistance
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -273,6 +274,50 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = [{'SeriesResistance': {'raw_value': '27.43', 'raw_units': '(Ω)', 'value': [27.43], 'units': 'Ohm^(1.0)', 'specifier': 'Rs'}}]
 
         self.do_table_cell(input, expected, SeriesResistance)
+
+    def test_specific_series_resistance(self):
+        input = [['Dye', 'Rs (Ω cm2)'], ['N719', '5.74']]
+        expected = [{'SpecificSeriesResistance': {'raw_value': '5.74', 'raw_units': '(Ωcm2)', 'value': [5.74], 'units': '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)', 'specifier': 'Rs'}}]
+
+        self.do_table_cell(input, expected, SpecificSeriesResistance)
+
+    def test_specific_charge_transfer_resistance(self):
+        input = [['Dye', 'Rct (Ω cm2)'], ['N719', '3.61']]
+        expected = [{'SpecificChargeTransferResistance': {'raw_value': '3.61', 'raw_units': '(Ωcm2)', 'value': [3.61], 'units': '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)', 'specifier': 'Rct'}}]
+
+        self.do_table_cell(input, expected, SpecificChargeTransferResistance)
+
+    def test_specific_charge_transfer_extracted_when_appropriate_in_pv_cell(self):
+        input = [['Dye', 'Rct (Ω cm2)'], ['N719', '3.61']]
+        self.maxDiff = None
+        logging.basicConfig(level=logging.DEBUG)
+        table = Table(caption=Caption(""),
+                      table_data=input,
+                      models=[PhotovoltaicCell])
+        output = []
+        for record in table.records:
+            output.append(record.serialize())
+
+        pv_cells = [val['PhotovoltaicCell'] for val in output if 'PhotovoltaicCell' in val.keys()]
+
+        self.assertEqual(pv_cells[0]['specific_charge_transfer_resistance']['SpecificChargeTransferResistance']['units'], '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)')
+        self.assertTrue('units' not in pv_cells[0]['charge_transfer_resistance']['ChargeTransferResistance'].keys())
+
+    def test_specific_charge_transfer_not_extracted_when_appropriate_in_pv_cell(self):
+        input = [['Dye', 'Rct (Ω)'], ['N719', '5.28']]
+        self.maxDiff = None
+        logging.basicConfig(level=logging.DEBUG)
+        table = Table(caption=Caption(""),
+                      table_data=input,
+                      models=[PhotovoltaicCell])
+        output = []
+        for record in table.records:
+            output.append(record.serialize())
+
+        pv_cells = [val['PhotovoltaicCell'] for val in output if 'PhotovoltaicCell' in val.keys()]
+
+        self.assertEqual(pv_cells[0]['charge_transfer_resistance']['ChargeTransferResistance']['units'], 'Ohm^(1.0)')
+        self.assertTrue('units' not in pv_cells[0]['specific_charge_transfer_resistance']['SpecificChargeTransferResistance'].keys())
 
     def test_exposure_time(self):
         input = [['Dye', 'Time (h)'], ['N719', '24']]
