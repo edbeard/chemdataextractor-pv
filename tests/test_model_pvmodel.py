@@ -53,6 +53,11 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = [{'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}}]
         self.do_table_cell(input, expected, Dye)
 
+    def test_dye_loading_disallowed_for_dye(self):
+        input = [['Dye Adsorption [× 10-7 mol cm-2]', 'Voc (mV)'], ['3.45', '601']]
+        expected = []
+        self.do_table_cell(input, expected, Dye)
+
     def test_adsorbed_dye_not_identified(self):
         input = [['Sensitizers', 'Adsorbed dye/μmol cm−2'], ['N719', '2.601']]
         expected = [{'PhotovoltaicCell': {'dye': {'Dye': {'specifier': 'Sensitizers', 'raw_value': 'N719'}},

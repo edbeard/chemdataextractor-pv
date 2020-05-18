@@ -352,9 +352,9 @@ etl_rules = (
 
 common_etls = common_semiconductors | etl_rules
 
-exponent = (Optional(W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑]')) + R('\d'))
-dye_loading_unit = Optional(W('(')) + exponent + I('mol') + ( (W('/') + R('[cnmk]m2')) | R('[cnmk]m[−-−‒‐‑]2')) + Optional(W(')'))
-dye_loading_unit_simple = Optional(W('(')) + R('[cnmk]m[−-−‒‐‑]2') | ( (W('/') + R('[cnmk]m2'))) + Optional(W(')'))
+exponent = (Optional(W('×') | W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑-]')) + R('\d'))
+dye_loading_unit = (Optional(W('(')) + exponent + I('mol') + ( (W('/') + R('[cnmk]m2')) | R('[cnmk]m[−-−‒‐‑-]2')) + Optional(W(')')))
+dye_loading_unit_simple = (Optional(W('(')) + R('[cnmk]m[−-−‒‐‑-]2') | ( (W('/') + R('[cnmk]m2'))) + Optional(W(')')))
 
 
 # Common properties for photovoltaic cells:
@@ -385,7 +385,7 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=((I('dye') | R('[Ss]ensiti[zs]e[rd](s)?')) + Not(I('loading') | I('adsorbed') |
+    specifier = StringType(parse_expression=((I('dye') | R('[Ss]ensiti[zs]e[rd](s)?')) + Not(I('loading') | I('adsorbed') | I('adsorption') |
                                                 dye_loading_unit | SkipTo(dye_loading_unit_simple))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
