@@ -374,7 +374,8 @@ class ShortCircuitCurrent(ElectricalCurrentModel):
     specifier = StringType(parse_expression=I('Isc'), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
 
-class FillFactor(DimensionlessModel):
+
+class FillFactor(RatioModel):
     specifier = StringType(parse_expression=(I('FF') | (I('fill') + I('factor')).add_action(join)), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
 

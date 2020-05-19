@@ -438,6 +438,7 @@ class ChemWordTokenizer(WordTokenizer):
         '`',  # \u0060
         '´',  # \u00b4
         'η', # Splitting eta when used as specifier for PCE
+        'FF', # Splitting FF indicator when used as specificer for fill factor
         # Primes
         # '′',  # \u2032
         # '″',  # \u2033
