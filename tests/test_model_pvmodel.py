@@ -20,7 +20,7 @@ from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensi
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
     ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
     PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent, SpecificChargeTransferResistance, \
-    SpecificSeriesResistance
+    SpecificSeriesResistance, PowerIn, PowerMax
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -351,6 +351,18 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         input = [['Counter Electrode', 'Adsorbed dye (108 /cm2)'], ['Pt', '0.86']]
         expected = []
         self.do_table_cell(input, expected, Dye)
+
+    def test_power_in_table(self):
+
+        input = [['dye', 'Pin (W)'], ['N719', '0.025']]
+        expected = [{'PowerIn': {'raw_value': '0.025', 'raw_units': '(W)', 'value': [0.025], 'units': 'Watt^(1.0)', 'specifier': 'Pin'}}]
+        self.do_table_cell(input, expected, PowerIn)
+
+    def test_power_max_table(self):
+
+        input = [['dye', 'PMAX (mW)'], ['N719', '0.44 ± 0.02']]
+        expected = [{'PowerMax': {'raw_value': '0.44 ± 0.02', 'raw_units': '(mW)', 'value': [0.44], 'units': '(10^-3.0) * Watt^(1.0)', 'error': 0.02, 'specifier': 'PMAX'}}]
+        self.do_table_cell(input, expected, PowerMax)
 
 
 class TestPhotovoltaicCellText(unittest.TestCase):

@@ -22,6 +22,7 @@ from .units.current_density import CurrentDensityModel
 from .units.electric_potential import ElectricPotentialModel
 from .units.irradiance import IrradianceModel
 from .units.length import LengthModel
+from .units.power import PowerModel
 from .units.ratio import RatioModel
 from .units.resistance import ResistanceModel
 from .units.specific_resistance import SpecificResistanceModel
@@ -387,7 +388,7 @@ class PowerConversionEfficiency(RatioModel):
 
 class Dye(BaseModel):
     """Dye Model that identifies from alphanumerics"""
-    specifier = StringType(parse_expression=((I('dye') | R('[Ss]ensiti[zs]e[rd](s)?')) + Not(I('loading') | I('adsorbed') | I('adsorption') |
+    specifier = StringType(parse_expression=((R('[Dd]ye(s)?') | R('[Ss]ensiti[zs]e[rd](s)?') | R('[Cc]ompound')) + Not(I('loading') | I('adsorbed') | I('adsorption') |
                                                 dye_loading_unit | SkipTo(dye_loading_unit_simple))).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join)) | R('[a-zA-Z0-9_/]*'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
@@ -476,6 +477,16 @@ class ExposureTime(TimeModel):
     parsers = [AutoTableParserOptionalCompound()]
 
 
+class PowerIn(PowerModel):
+    specifier = StringType(parse_expression=(I('Pin') | I('power') + I('in') ).add_action(join), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
+class PowerMax(PowerModel):
+    specifier = StringType(parse_expression=(I('Pmax') | (R('[mM]ax(imum)?') + I('power')) ).add_action(join), required=True)
+    parsers = [AutoTableParserOptionalCompound()]
+
+
 class PhotovoltaicCell(BaseModel):
     """ Class for photovoltaic devices. Uses a number of automatic parsers."""
 
@@ -518,6 +529,8 @@ class PhotovoltaicCell(BaseModel):
     specific_charge_transfer_resistance = ModelType(SpecificChargeTransferResistance, required=False, contextual=False)
     specific_series_resistance = ModelType(SpecificSeriesResistance, required=False, contextual=False)
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)
+    pin = ModelType(PowerIn, required=False, contextual=True)
+    pmax = ModelType(PowerMax, required=False, contextual=True)
 
     parsers = [AutoTableParserOptionalCompound()]#, AutoSentenceParserOptionalCompound()]
 
