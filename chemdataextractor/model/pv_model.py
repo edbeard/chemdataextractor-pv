@@ -609,6 +609,7 @@ class PerovskiteSolarCell(BaseModel):
     ff = ModelType(FillFactor, required=False, contextual=False)
     pce = ModelType(PowerConversionEfficiency, required=False, contextual=False)
     jsc = ModelType(ShortCircuitCurrentDensity, required=False, contextual=False)
+    isc = ModelType(ShortCircuitCurrent, required=False, contextual=False)
     ref = ModelType(Reference, required=False, contextual=False)
     counter_electrode = ModelType(CounterElectrode, required=False, contextual=False)
     etl = ModelType(ElectronTransportLayer, required=False, contextual=False) # Electron_transport_layer
@@ -620,6 +621,10 @@ class PerovskiteSolarCell(BaseModel):
     substrate = ModelType(Substrate, required=False, contextual=False)
     charge_transfer_resisitance = ModelType(ChargeTransferResistance, required=False, contextual=False)
     series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
+    specific_charge_transfer_resistance = ModelType(SpecificChargeTransferResistance, required=False, contextual=False)
+    specific_series_resistance = ModelType(SpecificSeriesResistance, required=False, contextual=False)
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)
+    pin = ModelType(PowerIn, required=False, contextual=True)
+    pmax = ModelType(PowerMax, required=False, contextual=True)
 
     parsers = [AutoTableParserOptionalCompound()]
