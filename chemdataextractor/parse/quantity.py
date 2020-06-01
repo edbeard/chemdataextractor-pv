@@ -247,7 +247,7 @@ def extract_value(string):
     for value, index in fraction_indicators:
         if index != 0 and index + 1 <= values_indices[-1]:
             for i in range(0, len(values)-1):
-                if values_indices[i] == index-1 and values_indices[i+1] == index + 1:
+                if values_indices[i] == index-1 and values_indices[i+1] == index + 1 and values[i+1] != 0:
                     fractions.append(values[i] / values[i+1])
                     blacklisted_indices.append(values_indices[i])
                     blacklisted_indices.append(values_indices[i+1])

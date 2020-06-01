@@ -212,9 +212,10 @@ class Table(CaptionedElement):
         :return: list of category tables (python lists)
         """
         yield table.category_table
-        while table.row_categories is not None:
-            yield table.row_categories.category_table
-            table = table.row_categories
+        if table.category_table != []:
+            while table.row_categories is not None:
+                yield table.row_categories.category_table
+                table = table.row_categories
 
     def _consolidate_by_row_col(self, records):
         """

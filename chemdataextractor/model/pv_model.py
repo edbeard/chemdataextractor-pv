@@ -603,6 +603,22 @@ class ElectronTransportLayer(BaseModel):
 class PerovskiteSolarCell(BaseModel):
     """ Class for perovskite photovoltaic devices. Uses a number of automatic parsers."""
 
+    def __init__(self, **raw_data):
+        """"""
+        self._values = {}
+        for key, value in six.iteritems(raw_data):
+            setattr(self, key, value)
+        # Set defaults
+        for key, field in six.iteritems(self.fields):
+            if key not in raw_data:
+                setattr(self, key, copy.copy(field.default))
+        self._record_method = None
+        self.was_updated = self._updated
+        self.calculated_properties = {}
+
+    def set_calculated_properties(self, prop_key, property):
+        self.calculated_properties[prop_key] = property
+
     specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
 
     voc = ModelType(OpenCircuitVoltage, required=False, contextual=False)
@@ -619,7 +635,7 @@ class PerovskiteSolarCell(BaseModel):
     active_area = ModelType(ActiveArea, required=False, contextual=False)
     solar_simulator = ModelType(SimulatedSolarLightIntensity, required=False, contextual=True)
     substrate = ModelType(Substrate, required=False, contextual=False)
-    charge_transfer_resisitance = ModelType(ChargeTransferResistance, required=False, contextual=False)
+    charge_transfer_resistance = ModelType(ChargeTransferResistance, required=False, contextual=False)
     series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
     specific_charge_transfer_resistance = ModelType(SpecificChargeTransferResistance, required=False, contextual=False)
     specific_series_resistance = ModelType(SpecificSeriesResistance, required=False, contextual=False)
