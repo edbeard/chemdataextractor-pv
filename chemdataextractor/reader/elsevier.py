@@ -138,7 +138,8 @@ class ElsevierXmlReader(XmlReader):
     metadata_lastpage_css = 'xocs|last-lp'
     metadata_doi_css = 'xocs|doi, xocs|eii'
     metadata_pii_css = 'xocs|pii-unformatted'
-    metadata2_css = 'ja|head'
+    meta_title_css = 'ce|title'
+    meta_author_css = 'ce|author'
 
     ignore_css = 'ce|bibliography, ce|acknowledgment, ce|correspondence, ce|author, ce|doi, ja|jid, ja|aid, ce|pii, xocs|oa-sponsor-type, xocs|open-access, default|openaccess,' \
                  'default|openaccessArticle, dc|format, dc|creator, dc|identifier,' \
@@ -184,7 +185,9 @@ class ElsevierXmlReader(XmlReader):
         references = self._css(self.reference_css, root)
         ignores = self._css(self.ignore_css, root)
         metadata = self._css(self.metadata_css, root)
-        metadata2 = self._css(self.metadata2_css, root)  # Parse remaining metadata info from document header
+        meta_title = self._css(self.meta_title_css, root)
+        meta_authors = self._css(self.meta_author_css, root)
+
         for reference in references:
             refs[reference.getparent()].extend(self._parse_reference(reference))
         for ignore in ignores:
@@ -200,14 +203,12 @@ class ElsevierXmlReader(XmlReader):
         for citation in citations:
             specials[citation] = self._parse_text(citation, element_cls=Citation, refs=refs, specials=specials)
         for md in metadata:
-            specials[md] = self._parse_metadata(md, refs=refs, specials=specials)
-        for md2 in metadata2:
-            specials[md2] = self._parse_metadata2(md2, refs=refs, specials=specials)
+            specials[md] = self._parse_metadata_els(md, meta_title, meta_authors)
 
         elements = self._parse_element(root, specials=specials, refs=refs)
         return Document(*elements)
 
-    def _parse_metadata(self, el, refs, specials):
+    def _parse_metadata_els(self, el, title_el, author_el):
         publisher = self._css(self.metadata_publisher_css, el)
         journal = self._css(self.metadata_journal_css, el)
         date = self._css(self.metadata_date_css, el)
@@ -220,6 +221,13 @@ class ElsevierXmlReader(XmlReader):
         pii = self._css(self.metadata_pii_css, el)
         pdf_url = self._css(self.metadata_pdf_url_css, el)
         html_url = self._css(self.metadata_html_url_css, el)
+        title = title_el
+        authors = []
+        for author in author_el:
+            first_name = self._css('ce|given-name', author)[0].text
+            surname = self._css('ce|surname', author)[0].text
+            text = first_name + ' ' + surname
+            authors.append(text)
 
         metadata = {
             '_publisher': publisher[0].text if publisher else None,
@@ -232,26 +240,9 @@ class ElsevierXmlReader(XmlReader):
             '_lastpage': lastpage[0].text if lastpage else None,
             '_doi': doi[0].text if doi else None,
             '_pdf_url': self.url_prefix + pdf_url[0].text if pdf_url else None,
-            '_html_url': self.url_prefix + html_url[0].text if html_url else self.url_prefix + pii[0].text
-        }
-        meta = MetaData(metadata)
-        return [meta]
-
-    def _parse_metadata2(self, el, refs, specials):
-        title = self._css('ce|title', el)
-        authors = self._css('ce|author', el)
-
-        if authors:
-            author_list = []
-            for author in authors:
-                first_name = self._css('ce|given-name', author)[0].text
-                surname = self._css('ce|surname', author)[0].text
-                text = first_name + ' ' + surname
-                author_list.append(text)
-
-        metadata = {
+            '_html_url': self.url_prefix + html_url[0].text if html_url else self.url_prefix + pii[0].text,
             '_title': title[0].text if title else None,
-            '_authors': author_list if authors else None
+            '_authors': authors if authors != [] else None
         }
         meta = MetaData(metadata)
         return [meta]

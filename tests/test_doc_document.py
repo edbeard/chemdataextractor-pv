@@ -73,10 +73,7 @@ class TestDocument(unittest.TestCase):
     def test_doc_meta(self):
         f = open('tests/data/elsevier/j.jnoncrysol.2017.07.006.xml', 'rb')
         d = Document.from_file(f)
-        meta1 = d.metadata[0].serialize()
-        meta2 = d.metadata[1].serialize()
-        meta = {}
-        meta['MetaData'] = {**meta1['MetaData'], **meta2['MetaData']}
+        meta = d.metadata[0].serialize()
         expected = {'MetaData': {'publisher': '© 2017 Elsevier B.V. All rights reserved.', 'journal': 'Journal of Non-Crystalline Solids', 'date': '2017-07-14', 'volume': '471', 'issue': '0022-3093', 'firstpage': '467', 'lastpage': '475', 'doi': '10.1016/j.jnoncrysol.2017.07.006', 'html_url': 'https://sciencedirect.com/science/article/pii/S0022309317303496', 'title': 'Structural and electrochemical characterization of the Ca50Mg20Cu25Zn5 amorphous alloy', 'authors': ['R. Babilas', 'A. Bajorek', 'Ł. Hawełek', 'W. Głuchowski', 'W. Simka', 'D. Babilas']}}
         self.assertEqual(meta, expected)
 
