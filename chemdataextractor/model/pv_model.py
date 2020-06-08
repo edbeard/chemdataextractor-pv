@@ -14,7 +14,7 @@ import copy
 import logging
 import re
 
-from .base import BaseModel, StringType, ModelType, ListType
+from .base import BaseModel, StringType, ModelType
 from .units.substance_amount_density import AmountOfSubstanceDensityModel
 from .units.area import AreaModel
 from .units.current import ElectricalCurrentModel
@@ -32,7 +32,7 @@ from ..parse.actions import join, merge
 from ..parse.cem import strict_chemical_label
 
 from ..model.units.quantity_model import DimensionlessModel
-from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound
+from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound, AutoSentenceParserPerovskite
 
 log = logging.getLogger(__name__)
 
@@ -598,6 +598,19 @@ class ElectronTransportLayer(BaseModel):
          ).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+
+
+class SentencePerovskite(BaseModel):
+    """
+    Identifying perovskites by the presence of the metal cation
+    These are filtered in the parsing to only include values ending with the halogen anion and a number
+    """
+
+    specifier_phrase = ((I('perovskite') | I('sensitizer') | (I('light') + I('harvester')) + Optional('material') )).add_action(join)
+    specifier = StringType(parse_expression=specifier_phrase, required=True, contextual=False)
+    metal_cation_specifier = R('(Pb)|(Sn)|(Sb)|(Bi)|(Ge)')
+    raw_value = StringType(parse_expression=metal_cation_specifier, required=True)
+    parsers = [AutoSentenceParserPerovskite()]
 
 
 class PerovskiteSolarCell(BaseModel):

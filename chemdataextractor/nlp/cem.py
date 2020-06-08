@@ -101,7 +101,7 @@ STRIP_START = [
 
 #: Disallowed tokens in chemical entity mentions (discard if any single token has exact case-insensitive match)
 STOP_TOKENS = {
-    'gene', 'inhibitor', 'genetical', 'human', 'recombinant', 'recombination', 'adenovirus', 'bovine', 'chicken',
+    'perovskite', 'gene', 'inhibitor', 'genetical', 'human', 'recombinant', 'recombination', 'adenovirus', 'bovine', 'chicken',
     'sheep', 'pig', 'horse', 'mammalian', 'salmon', 'cytochrome', 'glycoprotein', 'genevrier', 'novartis', 'visfarm',
     'bristol-myers', 'squibb', 'allphar', 'bioniche', 'bipharma', 'chauvin', 'merck', 'procter', 'roche',
     'glaxo', 'glaxosmithkline', 'pfizer', 'ciba-geigy', 'interpharm', 'bayer', 'astrazeneca', 'aventis', 'behringer',

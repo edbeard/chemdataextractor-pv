@@ -22,7 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import logging
 import six
-import copy
+import re
 
 from .cem import cem, chemical_label, lenient_chemical_label
 from .actions import merge, join
@@ -670,3 +670,51 @@ class AutoTableParserOptionalCompound(BaseAutoParser, BaseTableParser):
             model_instance.record_method = self.__class__.__name__
             yield model_instance
 
+
+class AutoSentenceParserPerovskite(AutoSentenceParserOptionalCompound):
+    def __init__(self, lenient=False, chem_name=(cem | chemical_label | lenient_chemical_label)):
+        super(AutoSentenceParserPerovskite, self).__init__()
+        self.lenient = lenient
+        self.chem_name = chem_name
+
+    def interpret(self, result, start, end):
+        # print(etree.tostring(result))
+        if result is None:
+            return
+        requirements = True
+        property_entities = {}
+
+        if hasattr(self.model, 'raw_value'):
+
+            # Check that the cem ends with a halogen anion
+            raw_values = result.xpath('./raw_value')
+            end_match = re.compile('[I(Cl)(Br)F(At)(Ts)][(\d*\.?\d*)xy]$')
+            out_raw_values = []
+            for val in raw_values:
+                raw_value = first(val.xpath('./text()'))
+                if end_match.search(raw_value):
+                    print(raw_value)
+                    out_raw_values.append(raw_value)
+
+            if out_raw_values != []:
+                log.debug(out_raw_values[0])
+                property_entities.update({"raw_value": out_raw_values[0]})
+
+        for field_name, field in six.iteritems(self.model.fields):
+            if field_name not in ['raw_value', 'raw_units', 'value', 'units', 'error', 'exponent', 'std_units', 'std_error', 'std_value']:
+                try:
+                    data = self._get_data(field_name, field, result)
+                    if data is not None:
+                        property_entities.update(data)
+                # if field is required, but empty, the requirements have not been met
+                except TypeError as e:
+                    log.debug(self.model)
+                    log.debug(e)
+                    requirements = False
+
+        model_instance = self.model(**property_entities)
+
+        if requirements:
+            # records the parser that was used to generate this record, can be used for evaluation
+            model_instance.record_method = self.__class__.__name__
+            yield model_instance

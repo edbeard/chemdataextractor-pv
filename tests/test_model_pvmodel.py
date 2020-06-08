@@ -20,7 +20,7 @@ from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensi
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
     ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
     PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent, SpecificChargeTransferResistance, \
-    SpecificSeriesResistance, PowerIn, PowerMax
+    SpecificSeriesResistance, PowerIn, PowerMax, SentencePerovskite, SentencePerovskite
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -584,4 +584,71 @@ class TestPerovskiteCellSentence(unittest.TestCase):
             output.append(record.serialize())
         self.assertEqual(output, expected)
 
+    def test_perovskite_sentence_parser_1(self):
 
+        text = 'perovskite found of CsPbCl3'
+        expected = [{'SentencePerovskite': {'raw_value': 'CsPbCl3', 'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_2(self):
+
+        # TEsting case where the formula contains an abbreviation that isn't an element
+        text = 'perovskite found of MAPbI3'
+        expected = [{'SentencePerovskite': {'raw_value': 'MAPbI3', 'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_3(self):
+
+        # testing case where the perovskite contains a variable
+        text = 'perovskite found of CH3NH3PbI3-xBrx'
+        expected = [{'SentencePerovskite': {'raw_value': 'CH3NH3PbI3-xBrx', 'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_4(self):
+
+        # testing case where the perovskite contains a variable
+        text = 'light harvester was determined to be (H3NC6H12NH3)BiI5'
+        expected = [{'SentencePerovskite': {'raw_value': '(H3NC6H12NH3)BiI5', 'specifier': 'light harvester'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_5(self):
+        # testing case where the perovskite contains a variable
+        text = 'Light harvester was determined to use the compound MASn0.1Pb0.9I3.'
+        expected = [{'SentencePerovskite': {'raw_value': 'MASn0.1Pb0.9I3', 'specifier': 'Light harvester'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_5(self):
+        # testing case where the perovskite contains a variable
+        text = 'Light harvester was determined to use MASn0.1Pb0.9I3.'
+        expected = [{'SentencePerovskite': {'raw_value': 'MASn0.1Pb0.9I3', 'specifier': 'Light harvester'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)

@@ -119,11 +119,13 @@ class BaseSentenceParser(BaseParser):
         :returns: All the models found in the sentence.
         :rtype: Iterator[:class:`chemdataextractor.model.base.BaseModel`]
         """
+        # import lxml
+        # from pprint import pprint
         if self.trigger_phrase is not None:
             trigger_phrase_results = [result for result in self.trigger_phrase.scan(tokens)]
         if self.trigger_phrase is None or trigger_phrase_results:
             for result in self.root.scan(tokens):
-                # print(lxml.etree.tostring(result[0]))
+                # pprint(lxml.etree.tostring(result[0]))
                 for model in self.interpret(*result):
                     yield model
 
