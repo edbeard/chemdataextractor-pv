@@ -307,49 +307,54 @@ common_htls = (
     I("C53H67N")
 ).add_action(join)
 
-etl_rules = (
-        I("titanium dioxide") |
-        I("TiO2") |
-        I("zinc oxide") |
-        I("ZnO") |
-        I("tin dioxide") |
-        I("stannic oxide") |
-        I("SnO2") |
-        I("silicon dioxide") |
-        I("SiO2") |
-        I("nickel oxide") |
-        I("NiO") |
-        I("zirconium dioxide") |
-        I("ZrO2") |
-        I("poly(triarylamine)") |
-        I("PTAA") |
-        I("phenyl-C61-butyric acid methyl ester") |
-        I("PCBM") |
-        I("m-TiO2") |
-        I("mesoporous titanium dioxide") |
-        I("c-TiO2") |
-        I("compact titanium dioxide") |
-        I("MgO/TiO2") |
-        I("Al2O3/TiO2") |
-        I("ZnO/TiO2") |
-        I("TiO2/MgO") |
-        I("WO3/TiO2") |
-        I("np-TiO2") |
-        I("titanium dioxide nanoparticles") |
-        I("TiO2 nanoparticles") |
-        I("Al2O3/ZnO") |
-        I("ITO/ZnO") |
-        I("ITO/Al2O3") |
-        I("ITO/V2O5") |
-        I("ITO/TiO2") |
-        I("aluminum doped zinc oxide") |
-        I("AZO") |
-        I("hafnium(IV) oxide") |
-        I("HfO2") |
-        I("polyethyleneimine / titanium dioxide") |
-        I("PEI/TiO2") |
-        I("polyethyleneimine / zinc oxide") |
-        I("PEI/ZnO")
+etl_rules = (I("titanium dioxide") |
+I("TiO2") |
+I("zinc") + I("oxide") |
+I("ZnO") |
+I("tin") + I("dioxide") |
+I("stannic") + I("oxide") |
+I("SnO2") |
+I("silicon") + I("dioxide") |
+I("SiO2") |
+I("nickel") + I("oxide") |
+I("NiO") |
+I("zirconium") + I("dioxide") |
+I("ZrO2") |
+I("poly(triarylamine)") |
+I("PTAA") |
+I("phenyl-C61-butyric") + I("acid") + I("methyl") + I("ester") |
+I("PCBM") |
+I("m-TiO2") |
+I("mesoporous") + I("titanium") + I("dioxide") |
+I("c-TiO2") |
+I("compact") + I("titanium") + I("dioxide") |
+I("MgO") + I("/") + I("TiO2") |
+I("Al2O3") + I("/") + I("TiO2") |
+I("ZnO") + I("/") + I("TiO2") |
+I("TiO2") + I("/") + I("MgO") |
+I("WO3") + I("/") + I("TiO2") |
+I("np-TiO2") |
+I("titanium") + I("dioxide") + I("nanoparticles") |
+I("TiO2") + I("nanoparticles") |
+I("Al2O3") + I("/") + I("ZnO") |
+I("ITO") + I("/") + I("ZnO") |
+I("ITO") + I("/") + I("Al2O3") |
+I("ITO") + I("/") + I("V2O5") |
+I("ITO") + I("/") + I("TiO2") |
+I("aluminum") + I("doped") + I("zinc") + I("oxide") |
+I("AZO") |
+I("ZnO:Al") |
+I("hafnium(IV)") + I("oxide") |
+I("HfO2") |
+I("polyethyleneimine") + I("/") + I("titanium") + I("dioxide") |
+I("PEI") + I("/") + I("TiO2") |
+I("polyethyleneimine") + I("/") + I("zinc oxide") |
+I("PEI") + I("/") + I("ZnO") |
+I("aluminium") + I("oxide") |
+I("Al2O3") |
+I("Zn2SnO4") |
+I("Al2O3") |
+I("zinc") + I("stannate")
 ).add_action(join)
 
 common_etls = common_semiconductors | etl_rules

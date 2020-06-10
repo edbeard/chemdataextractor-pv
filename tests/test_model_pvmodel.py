@@ -568,6 +568,10 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'ElectronTransportLayer': {'raw_value': 'TiO2', 'specifier': 'ETL'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
+    def test_electron_transport_layer_sentence_2(self):
+        text = 'Device parameters for MAPbI3 solar cells prepared on an identical PEI/TiO2 ETL and capped with a spiro-MeOTAD HTL.'
+        expected = [{'ElectronTransportLayer': {'raw_value': 'TiO2', 'specifier': 'ETL'}}]
+        self.do_sentence(text, expected, ElectronTransportLayer)
 
     def test_active_area_and_counter_electrode(self):
         text = 'The active area of the cells defined by the Au electrodes were 0.08 cm2. '
