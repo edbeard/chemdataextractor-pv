@@ -563,6 +563,12 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'raw_value': 'CuPc', 'specifier': 'HSLs'}}]
         self.do_sentence(text, expected, HoleTransportLayer)
 
+    def test_hole_transport_layer_sentence_4(self):
+        text = 'Summary of photovoltaic parameters of the fully-vacuum-processed perovskite solar cells using 5.5 nm thick C60 ESLs, 370 nm thick CH3NH3PbI3 films and TAE-1 HSLs with different thicknesses measured under the reverse voltage scanning'
+        expected = [{'HoleTransportLayer': {'raw_value': 'TAE-1', 'specifier': 'HSLs'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+
     def test_electron_transport_layer_sentence(self):
         text = 'Device parameters for MAPbI3 solar cells prepared on an identical TiO2 ETL and capped with a spiro-MeOTAD HTL.'
         expected = [{'ElectronTransportLayer': {'raw_value': 'TiO2', 'specifier': 'ETL'}}]
@@ -570,7 +576,7 @@ class TestPerovskiteCellSentence(unittest.TestCase):
 
     def test_electron_transport_layer_sentence_2(self):
         text = 'Device parameters for MAPbI3 solar cells prepared on an identical PEI/TiO2 ETL and capped with a spiro-MeOTAD HTL.'
-        expected = [{'ElectronTransportLayer': {'raw_value': 'TiO2', 'specifier': 'ETL'}}]
+        expected = [{'ElectronTransportLayer': {'raw_value': 'PEI / TiO2', 'specifier': 'ETL'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
     def test_active_area_and_counter_electrode(self):

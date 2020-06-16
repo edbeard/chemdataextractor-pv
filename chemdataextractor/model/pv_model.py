@@ -283,31 +283,109 @@ common_htls = (
     (W('Li') + R('[−−-]') + I('TFSI') ) |
      W('TBP') |
     W('CuPc') |
-    I("Spiro-OMeTAD") |
-    I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
-    I("C81H68N4O8") |
-    I("Spiro-MeOTAD") |
-    I("N7′-octakis(4-methoxyphenyl)-9,9′-spirobi[9H-fluorene]-2,2′,7,7′-tetramine") |
-    I("Cuprous thiocyanate") |
-    I("Copper(I) thiocyanate") |
-    I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
-    I("CCuNS") |
-    I("EH44") |
-    I("9-(2-Ethylhexyl)-N,N,N,N-tetrakis(4-methoxyphenyl)- 9H-carbazole-2,7-diamine)") |
-    I("C48H51N3O4") |
-    I("Poly-TPD") |
-    I("4-butyl-N,N-diphenylaniline") |
-    I("C22H23N") |
-    I("X59") |
-    I("Spiro[9H-fluorene-9,9′-[9H]xanthene]-2,7-diamine") |
-    I("N,N,N′,N′-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9′-xanthene]-2,7-diamine") |
-    I("2-N,2-N,7-N,7-N-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9'-xanthene]-2,7-diamineC53H42N2O5") |
-    I("TFB") |
-    I("N-(4-Butan-2-ylphenyl)-4-methyl-N-[4-(7-methyl-9,9-dioctylfluoren-2-yl)phenyl]aniline") |
-    I("C53H67N")
+I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
+I("C81H68N4O8") |
+I("N7′-octakis(4-methoxyphenyl)-9,9′-spirobi[9H-fluorene]-2,2′,7,7′-tetramine") |
+I("pp-Spiro-OMeTAD") |
+I("Cuprous") + I("thiocyanate") |
+I("Copper(I)") + I("thiocyanate") |
+I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
+W("CCuNS") |
+I("EH44") |
+I("9-(2-Ethylhexyl)-N,N,N,N-tetrakis(4-methoxyphenyl)-9H-carbazole-2,7-diamine)") |
+I("C48H51N3O4") |
+I("Poly-TPD") |
+I("4-butyl-N,N-diphenylaniline") |
+I("C22H23N") |
+I("X59") |
+I("Spiro[9H-fluorene-9,9′-[9H]xanthene]-2,7-diamine") |
+I("N,N,N′,N′-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9′-xanthene]-2,7-diamine") |
+I("2-N,2-N,7-N,7-N-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9'-xanthene]-2,7-diamine") |
+I("N′,N′,N′′,N′′-tetrakis(4-methoxyphenyl)spiro[fluorene-9,9′-xanthene]−2,7-diamineC53H42N2O5") |
+I("TFB") |
+I("N-(4-Butan-2-ylphenyl)-4-methyl-N-[4-(7-methyl-9,9-dioctylfluoren-2-yl)phenyl]aniline") |
+I("C53H67N") |
+I("PTAA") |
+I("poly[bis(4-phenyl)(2,4,6-trimethylphenyl)amine]") |
+I("polytriarylamine") |
+I("4-Ethyl-N-(4-ethylphenyl)aniline") |
+I("N1-(4-(dimethylamino)phenyl)-N4,N4-dimethylbenzene-1,4-diamine") |
+I("bis(4-methylthiophenyl)amine") |
+I("mp-SFX-3PA") |
+I("mm-SFX-3PA") |
+I("mp-SFX-2PA") |
+I("mm-SFX-2PA") |
+I("FDT") |
+I("2′,7′-bis(bis(4-methoxyphenyl)amino)spiro[cyclopenta[2,1-b:3,4-b′]dithiophene-4,9′-fluorene]") |
+I("X60") |
+I("N2,N2,N2',N2',N7,N7,N7',N7'-octakis(4-methoxyphenyl)spiro[fluorene-9,9'-xanthene]-2,2',7,7'-tetraamine") |
+I("Spiro-S") |
+I("2,2′,7,7′-tetrakis[N,N-bis(p-methylsulfanylphenyl)amino]-9,9′-spirobifluorene") |
+I("Spiro-N") |
+I("2,2′,7,7′-tetrakis[N,N-bis(p-N,N-dimethylaminophenyl)amino]-9,9′-spirobifluorene") |
+I("Spiro-E") |
+I("2,2′,7,7′-tetrakis[N,N-bis(p-ethylphenyl)amino]-9,9′-spirobifluorene") |
+I("P3HT") |
+I("Poly(3-hexylthiophene-2,5-diyl)") |
+I("PCBTDPP") |
+I("Poly[N-90-heptadecanyl-2,7carbazole-alt-3,6-bis(thiophen-5-yl)-2,5-dioctyl-2,5-dihydropyrrolo[3,4]pyrrole-1,4-dione]") |
+I("PCPDTBT") |
+I("Poly[2,6-(4,4-bis-(2-ethylhexyl)-4H-cyclopenta[2,1-b;3,4-b′]dithiophene)-alt-4,7(2,1,3-benzothiadiazole)]") |
+I("PDI") |
+I("N,N′-dialkylperylenediimide") |
+I("TPD") |
+I("N,N′-bis(3-methylphenyl)-N,N′-diphenylbenzidine") |
+I("pm-spiro-OMeTAD") |
+I("N2,N2’,N7,N7’-tetrakis(3-methoxyphenyl)-N2,N2’,N7,N7’-tetrakis(4-methoxyphenyl)-9,9’-spirobi[fluorene]-2,2’,7,7’-tetraamine") |
+I("po-spiro-OMeTAD") |
+I("N2,N2’,N7,N7’-tetrakis(2-methoxyphenyl)-N2,N2’,N7,N7’-tetrakis(4-methoxyphenyl)-9,9’-spirobi[fluorene]-2,2’,7,7’-tetraamine") |
+I("PPyra‐XA") |
+I("PPyra‐TXA") |
+I("PPyra‐ACD") |
+I("WY-1") |
+I("WY-2") |
+I("WY-3") |
+I("CBP") |
+I("4,4-N,N′-dicarbazole-1,1′-biphenyl") |
+I("pyrene") |
+I("TPE") |
+I("1,1,2,2-tetraphenylethene") |
+I("bifluorenylidene") |
+I("CuSCN") |
+I("Copper(I) thiocyanate") |
+I("TIPS-pentacene") |
+I("TIPS-P") |
+I("6,13-bis(triisopropylsilylethynyl)") + I("pentacene") |
+I("KR216") |
+I("4,4′‐dimethoxydiphenylamine‐substituted") + I("9,9′‐bifluorenylidene") |
+I("H11") |
+I("N2,N2,N2',N2',N7,N7,N7',N7'-octakis(4-methoxyphenyl)-9H,9'H-[9,9'-bifluorene]-2,2',7,7'-tetraamine") |
+I("H12") |
+I("N2,N2,N2',N2',N7,N7,N7',N7'-octakis(4-methoxyphenyl)-[9,9'-bifluorenylidene]-2,2',7,7'-tetraamine") |
+I("1,3-Bis(2-(octyloxy)benzo[5,6][1,4]oxazino[2,3,4-kl]phenoxazin-3-yl)azulene") |
+I("5,7-Bis(2-(octyloxy)benzo[5,6][1,4]oxazino[2,3,4-kl]phenoxazin-3-yl)azulene") |
+I("3,3´,5,5´-Tetrakis(2-(octyloxy)benzo[5,6][1,4]oxazino[2,3,4-kl]phenoxazin-3-yl)-1,1´-biphenyl") |
+I("di-TPA") |
+I("N,N,N'',N''-tetrakis(4-methoxyphenyl)-[1,1':4',1''-terphenyl]-4,4''-diamine") |
+I("tri-TPA") |
+I("4,7,12-tris-[4-amino-[N,N-di-(4-methoxyphenyl)]-phenyl]-[2,2]paracyclophane") |
+I("tetra-TPA") |
+I("4,7,12,15-tetrakis-[4-amino-[N,N-di-(4-methoxyphenyl)]-phenyl]-[2,2]paracyclophane") |
+I("PCP-TPA") |
+I("TAE-1") |
+I("tetra{4-[N,N-(4,4′-dimethoxydiphenylamino)]phenyl}ethene") |
+I("V852") |
+I("9,9',9''-(benzene-1,3,5-triyltrimethylylidene)tris[N,N,N',N'-tetrakis(4-methoxyphenyl)-9Hfluorene-2,7-diamine]") |
+I("V859") |
+I("9,9'-(benzene-1,2-diyldimethylylidene)bis[N,N,N',N'-tetrakis(4-methoxyphenyl)-9H-fluorene-2,7-diamine]") |
+I("V862") |
+I("9,9'-(thiene-2,5-diyldimethylylidene)bis[N,N,N',N'-tetrakis(4-methoxyphenyl)-9H-fluorene-2,7-diamine]") |
+I("PETMP") |
+I("pentaerythritol tetrakis(3-mercaptopropionate)")
+
 ).add_action(join)
 
-etl_rules = (I("titanium dioxide") |
+etl_rules = (I("titaniu") + I("dioxide") |
 I("TiO2") |
 I("zinc") + I("oxide") |
 I("ZnO") |
