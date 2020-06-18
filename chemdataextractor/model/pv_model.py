@@ -584,10 +584,10 @@ class PhotovoltaicCell(BaseModel):
                 setattr(self, key, copy.copy(field.default))
         self._record_method = None
         self.was_updated = self._updated
-        self.calculated_properties = {}
+        self.derived_properties = {}
 
-    def set_calculated_properties(self, prop_key, property):
-        self.calculated_properties[prop_key] = property
+    def set_derived_properties(self, prop_key, property):
+        self.derived_properties[prop_key] = property
 
 
     specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
@@ -710,10 +710,10 @@ class PerovskiteSolarCell(BaseModel):
                 setattr(self, key, copy.copy(field.default))
         self._record_method = None
         self.was_updated = self._updated
-        self.calculated_properties = {}
+        self.derived_properties = {}
 
-    def set_calculated_properties(self, prop_key, property):
-        self.calculated_properties[prop_key] = property
+    def set_derived_properties(self, prop_key, property):
+        self.derived_properties[prop_key] = property
 
     specifier = StringType(parse_expression=Any().hide(), required=False, contextual=False)
 
