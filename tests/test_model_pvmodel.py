@@ -528,8 +528,8 @@ class TestPerovskiteCellTable(unittest.TestCase):
         self.do_table_cell(input, expected, Perovskite)
 
     def test_hole_transport_material_table(self):
-        input = [['HTM', 'Voc (V)'], ['Spiro-OMeTAD', '0.89']]
-        expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'Spiro - OMeTAD'}}]
+        input = [['HTM', 'Voc (V)'], ['SpiroOMeTAD', '0.89']]
+        expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'SpiroOMeTAD'}}]
         self.do_table_cell(input, expected, HoleTransportLayer)
 
     def test_electron_transporting_material_table(self):

@@ -278,7 +278,7 @@ common_perovskites = (
 ).add_action(join)
 
 common_htls = (
-    (I('spiro') + R('[−−-]') + (W('OMeTAD') | W('MeOTAD'))) |
+    (I('spiro') + Optional(R('[−−-]')) + (W('OMeTAD') | W('MeOTAD'))) |
     W('PEDOT:PSS') |
     (W('Li') + R('[−−-]') + I('TFSI') ) |
      W('TBP') |
