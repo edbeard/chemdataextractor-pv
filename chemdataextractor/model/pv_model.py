@@ -62,7 +62,7 @@ common_semiconductors = (
      W('NiO') | (I('nickel') + I('oxide')) |
      W('Zn2SnO4') | (I('zinc') + I('stannate')) |
      W('SnO2') | (I('tin') + I('oxide'))
-     ) + Optional(I('film')) + Optional(I('anode'))
+     ) + Optional(I('film')).hide() + Optional(I('anode')).hide()
 ).add_action(join)
 
 common_redox_couples = (
@@ -500,15 +500,14 @@ class CounterElectrode(BaseModel):
 
 
 class SemiconductorThickness(LengthModel):
-    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?') | R('[Tt]hick(ness)?')), required=True)
+    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?')  | common_semiconductors), required=True)
     raw_value = StringType(required=True, contextual=False)
     parsers = [AutoTableParserOptionalCompound(lenient=False), AutoSentenceParserOptionalCompound()]
 
 
 class Semiconductor(BaseModel):
-    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?')), required=True)
+    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?') ), required=True)
     raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk'))).add_action(join) | common_semiconductors)
-    thickness = ModelType(SemiconductorThickness, required=False)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
@@ -603,6 +602,7 @@ class PhotovoltaicCell(BaseModel):
     dye_loading = ModelType(DyeLoading, required=False, contextual=False)
     counter_electrode = ModelType(CounterElectrode, required=False, contextual=False)
     semiconductor = ModelType(Semiconductor, required=False, contextual=False)
+    semiconductor_thickness = ModelType(SemiconductorThickness, required=False, contextual=False)
     active_area = ModelType(ActiveArea, required=False, contextual=False)
     solar_simulator = ModelType(SimulatedSolarLightIntensity, required=False, contextual=True)
     electrolyte = ModelType(Electrolyte, required=False, contextual=False)

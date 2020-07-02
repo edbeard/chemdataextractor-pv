@@ -215,9 +215,7 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
     def test_semiconductor_table(self):
         input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm']]
-        expected = [{'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm',
-                                       'thickness': {'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'Semiconductor'}}}},
-                    {'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'Semiconductor'}}]
+        expected = [{'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm'}}]
 
         self.do_table_cell(input, expected, Semiconductor)
 
@@ -228,10 +226,41 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         self.do_table_cell(input, expected, Semiconductor)
 
     def test_semiconductor_thickness_table(self):
-        input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm']]
+        input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm'], ['N749', 'mesoporous film, 15µm']]
         expected = [{'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'Semiconductor'}}]
 
-        self.do_table_cell(input, expected, SemiconductorThickness)
+        # self.do_table_cell(input, expected, SemiconductorThickness)
+        expected_semi = [{'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm'}},
+                         {'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'mesoporous film , 15 µm'}}]
+
+        expected_thick = [{'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'TiO2'}},
+                          {'SemiconductorThickness': {'raw_value': '15', 'raw_units': 'µm', 'value': [15.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'Semiconductor'}}]
+
+        expected_pvcell = [
+            {'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}},
+            {'Dye': {'specifier': 'Dye', 'raw_value': 'N749'}},
+            {'PhotovoltaicCell': {'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'N719'}}, 'semiconductor': {
+                'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm'}},
+                                  'semiconductor_thickness': {
+                                      'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0],
+                                                                 'units': '(10^-6.0) * Meter^(1.0)',
+                                                                 'specifier': 'TiO2'}}}},
+            {'PhotovoltaicCell': {'dye': {'Dye': {'specifier': 'Dye', 'raw_value': 'N749'}}, 'semiconductor': {
+                'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'mesoporous film , 15 µm'}},
+                                  'semiconductor_thickness': {
+                                      'SemiconductorThickness': {'raw_value': '15', 'raw_units': 'µm', 'value': [15.0],
+                                                                 'units': '(10^-6.0) * Meter^(1.0)',
+                                                                 'specifier': 'Semiconductor'}}}},
+            {'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm'}},
+            {'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'mesoporous film , 15 µm'}},
+            {'SemiconductorThickness': {'raw_value': '12', 'raw_units': 'µm', 'value': [12.0],
+                                        'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'TiO2'}},
+            {'SemiconductorThickness': {'raw_value': '15', 'raw_units': 'µm', 'value': [15.0],
+                                        'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'Semiconductor'}}
+        ]
+        self.do_table_cell(input, expected_semi, Semiconductor)
+        self.do_table_cell(input, expected_thick, SemiconductorThickness)
+        self.do_table_cell(input, expected_pvcell, PhotovoltaicCell)
 
     def test_solar_irradiance_table(self):
         input = [['Dye', 'Solar irradiance'], ['N719', 'AM1.5G']]
@@ -436,17 +465,51 @@ class TestPhotovoltaicCellText(unittest.TestCase):
 
     def test_semiconductor_thickness_sentence(self):
         input = '8 μm thick ZnO anodes'
-        expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}]
+        expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'ZnO'}}]
 
         self.do_sentence(input, expected, SemiconductorThickness)
 
     def test_semiconductor_sentence(self):
         input = 'Photovoltaic properties of D149-sensitized, YD2-o-C8-TBA-sensitized and co-sensitized ZnO DSSCs fabricated using 8 μm thick ZnO anodes with light-scattering layers.'
-        expected = [{'Semiconductor': {'specifier': 'anodes', 'raw_value': 'ZnO',
-                    'thickness': {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}}},
-                    {'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'thick'}}]
+        expected_semi = [{'Semiconductor': {'specifier': 'anodes', 'raw_value': 'ZnO'}}]
+        expected_thick = [{'SemiconductorThickness': {'raw_units': 'μm',
+                             'raw_value': '8',
+                             'specifier': 'ZnO',
+                             'units': '(10^-6.0) * Meter^(1.0)',
+                             'value': [8.0]}}]
 
-        self.do_sentence(input, expected, Semiconductor)
+        self.do_sentence(input, expected_semi, Semiconductor)
+        self.do_sentence(input, expected_thick, SemiconductorThickness)
+
+    def test_semiconductor_sentence_2(self):
+        input = 'The thickness of the nanocrystalline TiO2 film was 12 μm.'
+        expected_thick =[{'SemiconductorThickness': {'raw_units': 'μm',
+                             'raw_value': '12',
+                             'specifier': 'TiO2',
+                             'units': '(10^-6.0) * Meter^(1.0)',
+                             'value': [12.0]}}]
+        self.do_sentence(input, [], Semiconductor)
+        self.do_sentence(input, expected_thick, SemiconductorThickness)
+
+    def test_semiconductor_sentence_3(self):
+        input = 'The thickness of the TiO2 film was 10 μm, consisting of 20 nm nanoparticles.'
+        expected_thick = [{'SemiconductorThickness': {'raw_units': 'μm',
+                             'raw_value': '10',
+                             'specifier': 'TiO2',
+                             'units': '(10^-6.0) * Meter^(1.0)',
+                             'value': [10.0]}}]
+        self.do_sentence(input, [], Semiconductor)
+        self.do_sentence(input, expected_thick, SemiconductorThickness)
+
+    def test_semiconductor_sentence_4(self):
+        input = 'The average thickness of the obtained TiO2 nanoporous films was about 10 μm.'
+        expected_thick = [{'SemiconductorThickness': {'raw_units': 'μm',
+                             'raw_value': '10',
+                             'specifier': 'TiO2',
+                             'units': '(10^-6.0) * Meter^(1.0)',
+                             'value': [10.0]}}]
+        self.do_sentence(input, [], Semiconductor)
+        self.do_sentence(input, expected_thick, SemiconductorThickness)
 
     def test_sentence_dye_sentence(self):
         input = "Organic sensitizer of 3-{6-{4-[bis(2′,4′-dihexyloxybiphenyl-4-yl)amino-]phenyl}-4,4-dihexyl-cyclopenta-[2,1-b:3,4-b']dithiophene-2-yl}-2-cyanoacrylic acid (Y123) was purchased from Dyenamo and used without purification."
