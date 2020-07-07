@@ -661,6 +661,11 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'ElectronTransportLayer': {'raw_value': 'SnO2', 'specifier': 'ITO /'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
+    def test_electron_transport_layer_sentence_4(self):
+        text = 'Fig. 1c and d show the J–V characteristics of the two (representative) devices fabricated using PCBM as EELs, before and after light soaking. '
+        expected = [{'ElectronTransportLayer': {'raw_value': 'PCBM', 'specifier': 'EELs'}}]
+        self.do_sentence(text, expected, ElectronTransportLayer)
+
     def test_active_area_and_counter_electrode(self):
         text = 'The active area of the cells defined by the Au electrodes were 0.08 cm2. '
         expected = [{'ActiveArea': {'raw_units': 'cm2',

@@ -387,7 +387,7 @@ I("pentaerythritol tetrakis(3-mercaptopropionate)")
 
 ).add_action(join)
 
-etl_rules = (I("titaniu") + I("dioxide") |
+etl_rules = (I("titanium") + I("dioxide") |
 I("TiO2") |
 I("zinc") + I("oxide") |
 I("ZnO") |
@@ -404,6 +404,8 @@ I("poly(triarylamine)") |
 I("PTAA") |
 I("phenyl-C61-butyric") + I("acid") + I("methyl") + I("ester") |
 I("PCBM") |
+I('PC60BM') |
+I('PC61BM') |
 I("m-TiO2") |
 I("mesoporous") + I("titanium") + I("dioxide") |
 I("c-TiO2") |
@@ -680,10 +682,10 @@ class HoleTransportLayer(BaseModel):
 
 class ElectronTransportLayer(BaseModel):
     """ Electron transporting layer of solar cell (usual term for semiconductor here.)"""
-    specifier = StringType(parse_expression=( R('ETLs?') | W('ECLs?') | W('ECMs?') | W('ETMs?') | W('ESLs?') |
+    specifier = StringType(parse_expression=( R('ETLs?') | R('ECLs?') | R('ECMs?') | R('ETMs?') | R('ESLs?') | R('EELs') |
         ( I('electron') + Optional(I('[−−-]'))
           + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection') | I('extraction') | I('collection'))
-          + (I('material') | I('layer'))) |
+          + (R('materials?') | R('layers?'))) |
           (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
 
                                               ).add_action(join), required=True, contextual=False)
