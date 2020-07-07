@@ -688,7 +688,7 @@ class AutoSentenceParserPerovskite(AutoSentenceParserOptionalCompound):
 
             # Check that the cem ends with a halogen anion
             raw_values = result.xpath('./raw_value')
-            end_match = re.compile('[I(Cl)(Br)F(At)(Ts)][(\d*\.?\d*)xy]$')
+            end_match = re.compile('[I(Cl)(Br)F(At)(Ts)][(\d*\.?\d*)xy]?$')
             out_raw_values = []
             for val in raw_values:
                 raw_value = first(val.xpath('./text()'))

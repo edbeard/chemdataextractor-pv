@@ -15,12 +15,12 @@ from __future__ import unicode_literals
 import logging
 import unittest
 
-from chemdataextractor.model.pv_model import BaseModel, ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
+from chemdataextractor.model.pv_model import ShortCircuitCurrentDensity, OpenCircuitVoltage, FillFactor,\
     PowerConversionEfficiency, Reference, RedoxCouple, DyeLoading, CounterElectrode, Semiconductor,\
     SemiconductorThickness, SimulatedSolarLightIntensity, ActiveArea, Electrolyte, Substrate, PhotovoltaicCell,\
     ChargeTransferResistance, SeriesResistance, ExposureTime, SentenceDye, SentenceDyeLoading, Dye, Perovskite, \
     PerovskiteSolarCell, HoleTransportLayer, ElectronTransportLayer, ShortCircuitCurrent, SpecificChargeTransferResistance, \
-    SpecificSeriesResistance, PowerIn, PowerMax, SentencePerovskite, SentencePerovskite
+    SpecificSeriesResistance, PowerIn, PowerMax, SentencePerovskite
 
 from chemdataextractor.doc.text import Sentence, Caption, Paragraph
 from chemdataextractor.doc.table import Table
@@ -463,6 +463,16 @@ class TestPhotovoltaicCellText(unittest.TestCase):
                                    'spectra': '1 : 5 AM'}}]
         self.do_sentence(input, expected, SimulatedSolarLightIntensity)
 
+    def test_solar_irradiance_sentence_6(self):
+        input = 'All the devices were measured via using Keithley 2400 under standard solar simulator with an intensity of 100 mW/cm2'
+        expected = [{'SimulatedSolarLightIntensity': {'raw_units': 'mW/cm2',
+                                   'raw_value': '100',
+                                   'specifier': 'solar',
+                                   'units': '(10^1.0) * Meter^(-2.0)  '
+                                            'Watt^(1.0)',
+                                   'value': [100.0]}}]
+        self.do_sentence(input, expected, SimulatedSolarLightIntensity)
+
     def test_semiconductor_thickness_sentence(self):
         input = '8 μm thick ZnO anodes'
         expected = [{'SemiconductorThickness': {'raw_value': '8', 'raw_units': 'μm', 'value': [8.0], 'units': '(10^-6.0) * Meter^(1.0)', 'specifier': 'ZnO'}}]
@@ -631,6 +641,10 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'raw_value': 'TAE-1', 'specifier': 'HSLs'}}]
         self.do_sentence(text, expected, HoleTransportLayer)
 
+    def test_hole_transport_layer_sentence_5(self):
+        text = 'ITO/PEDOT:PSS/CH3NH3PbI3−xClx/EEL/Al'
+        expected = [{'HoleTransportLayer': {'raw_value': 'PEDOT : PSS', 'specifier': 'ITO /'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
 
     def test_electron_transport_layer_sentence(self):
         text = 'Device parameters for MAPbI3 solar cells prepared on an identical TiO2 ETL and capped with a spiro-MeOTAD HTL.'
@@ -640,6 +654,11 @@ class TestPerovskiteCellSentence(unittest.TestCase):
     def test_electron_transport_layer_sentence_2(self):
         text = 'Device parameters for MAPbI3 solar cells prepared on an identical PEI/TiO2 ETL and capped with a spiro-MeOTAD HTL.'
         expected = [{'ElectronTransportLayer': {'raw_value': 'PEI / TiO2', 'specifier': 'ETL'}}]
+        self.do_sentence(text, expected, ElectronTransportLayer)
+
+    def test_electron_transport_layer_sentence_3(self):
+        text = 'ITO/SnO2/CsPbI2Br/Spiro-OMeTAD/MoO3/Ag'
+        expected = [{'ElectronTransportLayer': {'raw_value': 'SnO2', 'specifier': 'ITO /'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
     def test_active_area_and_counter_electrode(self):
@@ -652,6 +671,38 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         {'CounterElectrode': {'raw_value': 'Au', 'specifier': 'electrodes'}}]
         sentence = Sentence(text)
         sentence.models = [ActiveArea, CounterElectrode]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_counter_electrode_slash_format(self):
+        text = 'ITO/PEDOT:PSS/CH3NH3PbI3−xClx/EEL/Al'
+        expected = [{'CounterElectrode': {'raw_value': 'Al', 'specifier': 'ITO'}}]
+        sentence = Sentence(text)
+        sentence.models = [CounterElectrode]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_counter_electrode_slash_format_2(self):
+
+        text = 'Herein, we demonstrated a low temperature solution process to obtain high quality CsPbI2Br films and fabricate devices with a facile n-i-p structure (ITO/SnO2/CsPbI2Br/Spiro-OMeTAD/MoO3/Ag), in which MoO3 was introduced as interfacial layer that led to high efficient charge extraction and suppressed carrier recombination.'
+        expected = [{'CounterElectrode': {'raw_value': 'Ag', 'specifier': 'ITO'}}]
+        sentence = Sentence(text)
+        sentence.models = [CounterElectrode]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+
+    def test_substrate_parser_1(self):
+        text = 'ITO/PEDOT:PSS/CH3NH3PbI3−xClx/EEL/Al'
+        expected = [{'Substrate': {'raw_value': 'ITO', 'specifier': '/'}}]
+        sentence = Sentence(text)
+        sentence.models = [Substrate]
         output = []
         for record in sentence.records:
             output.append(record.serialize())
@@ -715,10 +766,42 @@ class TestPerovskiteCellSentence(unittest.TestCase):
             output.append(record.serialize())
         self.assertEqual(output, expected)
 
-    def test_perovskite_sentence_parser_5(self):
+    def test_perovskite_sentence_parser_6(self):
         # testing case where the perovskite contains a variable
         text = 'Light harvester was determined to use MASn0.1Pb0.9I3.'
         expected = [{'SentencePerovskite': {'raw_value': 'MASn0.1Pb0.9I3', 'specifier': 'Light harvester'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_7(self):
+
+        text = 'All-inorganic perovskite CsPbI2Br has received much attention recently due to its suitable bandgap and excellent thermal stability.'
+        expected = [{'SentencePerovskite': {'raw_value': 'CsPbI2Br', 'specifier': 'perovskite'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_8(self):
+
+        text = 'All-inorganic perovskite CsPbI2Br has received much attention recently due to its suitable bandgap and excellent thermal stability.'
+        expected = [{'SentencePerovskite': {'raw_value': 'CsPbI2Br', 'specifier': 'perovskite'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_9(self):
+        text = 'ITO/PEDOT:PSS/CH3NH3PbI3−xClx/EEL/Al'
+        expected = [{'SentencePerovskite': {'raw_value': 'CH3NH3PbI3−xClx', 'specifier': 'ITO /'}}]
         sentence = Sentence(text )
         sentence.models = [SentencePerovskite]
         output = []

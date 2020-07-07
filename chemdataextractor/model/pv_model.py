@@ -82,7 +82,8 @@ common_redox_couples = (
 common_counter_electrodes = (
     I('gold') | W('Ag') |  # gold
     I('silver') | W('Au') | # silver
-    I('platinum') | W('Pt') # platinum
+    I('platinum') | W('Pt') | # platinum
+    I('aluminium') | W('Al') # Aluminium
 )
 
 not_dyes = common_substrates | common_spectra | common_semiconductors | common_redox_couples
@@ -280,6 +281,7 @@ common_perovskites = (
 common_htls = (
     (I('spiro') + Optional(R('[−−-]')) + (W('OMeTAD') | W('MeOTAD'))) |
     W('PEDOT:PSS') |
+    (W('PEDOT') + W(':') + W('PSS')) |
     (W('Li') + R('[−−-]') + I('TFSI') ) |
      W('TBP') |
     W('CuPc') |
@@ -494,13 +496,16 @@ class DyeLoading(AmountOfSubstanceDensityModel):
 
 
 class CounterElectrode(BaseModel):
-    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?')).add_action(join) | Not(I('PCE')) + R('CE(s)?')), required=True)
+    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?')).add_action(join) | Not(I('PCE')) + R('CE(s)?') |
+        (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
+                                             ), required=True)
     raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
 class SemiconductorThickness(LengthModel):
-    specifier = StringType(parse_expression=(R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?')  | common_semiconductors), required=True)
+    spec_expression = ((R('[Ss]emiconductor(s)?') | R('[Aa]node(s)?') | R('[Pp]hotoanode(s)?')  | common_semiconductors)).add_action(join)# + SkipTo(Not(R('nm')))).add_action(join)
+    specifier = StringType(parse_expression=( spec_expression), required=True)
     raw_value = StringType(required=True, contextual=False)
     parsers = [AutoTableParserOptionalCompound(lenient=False), AutoSentenceParserOptionalCompound()]
 
@@ -529,7 +534,7 @@ class Electrolyte(BaseModel):
 
 
 class Substrate(BaseModel):
-    specifier = StringType(parse_expression=I('substrate'), required=True, contextual=False)
+    specifier = StringType(parse_expression=(I('substrate') | I('/') + common_counter_electrodes), required=True, contextual=False)
     raw_value = StringType(parse_expression=((Start() + SkipTo(W('sdfkljlk'))).add_action(join) | common_substrates), required=True, contextual=False)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
@@ -666,7 +671,8 @@ class Perovskite(BaseModel):
 class HoleTransportLayer(BaseModel):
     """ Hole transporting layer of solar cell (replaces electrolyte)"""
     specifier = StringType(parse_expression=( R('HTLs?') | R('HCLs?') | R('HCMs?') | R('HTMs?') | R('HSLs?') |
-        ( I('hole') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer')))
+        ( I('hole') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer'))) |
+          (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
          ).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
@@ -677,8 +683,10 @@ class ElectronTransportLayer(BaseModel):
     specifier = StringType(parse_expression=( R('ETLs?') | W('ECLs?') | W('ECMs?') | W('ETMs?') | W('ESLs?') |
         ( I('electron') + Optional(I('[−−-]'))
           + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection') | I('extraction') | I('collection'))
-          + (I('material') | I('layer')))
-         ).add_action(join), required=True, contextual=False)
+          + (I('material') | I('layer'))) |
+          (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
+
+                                              ).add_action(join), required=True, contextual=False)
     raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
@@ -689,7 +697,7 @@ class SentencePerovskite(BaseModel):
     These are filtered in the parsing to only include values ending with the halogen anion and a number
     """
 
-    specifier_phrase = ((I('perovskite') | I('sensitizer') | (I('light') + I('harvester')) + Optional('material') )).add_action(join)
+    specifier_phrase = ((I('perovskite') | I('sensitizer') | (I('light') + I('harvester')) + Optional('material') | (common_substrates + I('/')) )).add_action(join)
     specifier = StringType(parse_expression=specifier_phrase, required=True, contextual=False)
     metal_cation_specifier = R('(Pb)|(Sn)|(Sb)|(Bi)|(Ge)')
     raw_value = StringType(parse_expression=metal_cation_specifier, required=True)
