@@ -808,3 +808,13 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         for record in sentence.records:
             output.append(record.serialize())
         self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_PbI2(self):
+        text = 'The perovskite was synthesized using the precursor PbI2 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)

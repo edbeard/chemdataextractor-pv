@@ -35,6 +35,8 @@ import xml.etree.ElementTree as etree
 
 log = logging.getLogger(__name__)
 
+disallowed_perovskites = ['PbI2']
+
 
 def construct_unit_element(dimensions):
     """
@@ -694,7 +696,8 @@ class AutoSentenceParserPerovskite(AutoSentenceParserOptionalCompound):
                 raw_value = first(val.xpath('./text()'))
                 if end_match.search(raw_value):
                     print(raw_value)
-                    out_raw_values.append(raw_value)
+                    if raw_value not in disallowed_perovskites:
+                        out_raw_values.append(raw_value)
 
             if out_raw_values != []:
                 log.debug(out_raw_values[0])
