@@ -542,22 +542,22 @@ class Substrate(BaseModel):
 
 
 class ChargeTransferResistance(ResistanceModel):
-    specifier = StringType(parse_expression=(R('Rct\d?') | R('Rk')), required=True)
+    specifier = StringType(parse_expression=(R('R[(ct)(CT)]\d?') | R('R[kK]')), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
 class SeriesResistance(ResistanceModel):
-    specifier = StringType(parse_expression=W('Rs'), required=True)
+    specifier = StringType(parse_expression=R('R[Ss]'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
 class SpecificChargeTransferResistance(SpecificResistanceModel):
-    specifier = StringType(parse_expression=(R('Rct\d?') | R('Rk')), required=True)
+    specifier = StringType(parse_expression=(R('R[(ct)(CT)]\d?') | R('R[kK]')), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
 class SpecificSeriesResistance(SpecificResistanceModel):
-    specifier = StringType(parse_expression=W('Rs'), required=True)
+    specifier = StringType(parse_expression=R('R[Ss]'), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
@@ -742,7 +742,7 @@ class PerovskiteSolarCell(BaseModel):
     solar_simulator = ModelType(SimulatedSolarLightIntensity, required=False, contextual=True)
     substrate = ModelType(Substrate, required=False, contextual=False)
     charge_transfer_resistance = ModelType(ChargeTransferResistance, required=False, contextual=False)
-    series_resisitance = ModelType(SeriesResistance, required=False, contextual=False)
+    series_resistance = ModelType(SeriesResistance, required=False, contextual=False)
     specific_charge_transfer_resistance = ModelType(SpecificChargeTransferResistance, required=False, contextual=False)
     specific_series_resistance = ModelType(SpecificSeriesResistance, required=False, contextual=False)
     exposure_time = ModelType(ExposureTime, required=False, contextual=True)

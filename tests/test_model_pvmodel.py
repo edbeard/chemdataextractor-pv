@@ -316,6 +316,11 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
         self.do_table_cell(input, expected, SpecificSeriesResistance)
 
+    def test_specific_series_resistance_2(self):
+        input = [['Dye', 'RS (Ω cm2)'], ['N719', '5.74']]
+        expected = [{'SpecificSeriesResistance': {'raw_value': '5.74', 'raw_units': '(Ωcm2)', 'value': [5.74], 'units': '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)', 'specifier': 'RS'}}]
+        self.do_table_cell(input, expected, SpecificSeriesResistance)
+
     def test_specific_charge_transfer_resistance(self):
         input = [['Dye', 'Rct (Ω cm2)'], ['N719', '3.61']]
         expected = [{'SpecificChargeTransferResistance': {'raw_value': '3.61', 'raw_units': '(Ωcm2)', 'value': [3.61], 'units': '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)', 'specifier': 'Rct'}}]
