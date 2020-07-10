@@ -828,3 +828,25 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         for record in sentence.records:
             output.append(record.serialize())
         self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_word_containing_element(self):
+        text = 'Snapshot of shear-deposited perovskite film on NiOX/ITO/Glass substrate.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_word_containing_element_2(self):
+        text = 'Bilayer of shear-deposited perovskite film on NiOX/ITO/Glass substrate.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    
