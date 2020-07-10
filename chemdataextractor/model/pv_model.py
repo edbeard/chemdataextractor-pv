@@ -469,7 +469,7 @@ class FillFactor(RatioModel):
 
 
 class PowerConversionEfficiency(RatioModel):
-    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff') | I('efficiency')), required=True, contextual=False, updatable=True)
+    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff') | I('efficiency') | I('PCES')), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
@@ -498,7 +498,7 @@ class DyeLoading(AmountOfSubstanceDensityModel):
 
 
 class CounterElectrode(BaseModel):
-    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?')).add_action(join) | Not(I('PCE')) + R('CE(s)?') |
+    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?') + Not(I('type'))).add_action(join) | Not(I('PCE')) + R('CE(s)?') |
         (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
                                              ), required=True)
     raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
@@ -547,7 +547,7 @@ class ChargeTransferResistance(ResistanceModel):
 
 
 class SeriesResistance(ResistanceModel):
-    specifier = StringType(parse_expression=R('R[Ss]'), required=True)
+    specifier = StringType(parse_expression= (Not(R('R((SH)|(sh)|(Sh))')) + R('R[Ss]')).add_action(join), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
@@ -557,7 +557,7 @@ class SpecificChargeTransferResistance(SpecificResistanceModel):
 
 
 class SpecificSeriesResistance(SpecificResistanceModel):
-    specifier = StringType(parse_expression=R('R[Ss]'), required=True)
+    specifier = StringType(parse_expression= (Not(R('R((SH)|(sh)|(Sh))')) + R('R[Ss]')).add_action(join), required=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 

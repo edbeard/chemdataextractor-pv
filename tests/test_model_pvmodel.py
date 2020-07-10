@@ -213,6 +213,12 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
 
         self.do_table_cell(input, expected, PhotovoltaicCell)
 
+    def test_counter_electrodes_table_3(self):
+        input = [['Device electrode type', 'Voc'], ['CBSi3N4-1%', '0.71 ± 0.02'], ['CBSi3N4-3%', '0.74 ± 0.01']]
+        expected = []
+        self.do_table_cell(input, expected, CounterElectrode)
+
+
     def test_semiconductor_table(self):
         input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm']]
         expected = [{'Semiconductor': {'specifier': 'Semiconductor', 'raw_value': 'TiO2 film , 12 µm'}}]
@@ -319,6 +325,16 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
     def test_specific_series_resistance_2(self):
         input = [['Dye', 'RS (Ω cm2)'], ['N719', '5.74']]
         expected = [{'SpecificSeriesResistance': {'raw_value': '5.74', 'raw_units': '(Ωcm2)', 'value': [5.74], 'units': '(10^-4.0) * Meter^(2.0)  Ohm^(1.0)', 'specifier': 'RS'}}]
+        self.do_table_cell(input, expected, SpecificSeriesResistance)
+
+    def test_specific_series_resistance_disallowed(self):
+        input = [['Dye', 'Rsh (Ω cm2)a'], ['N719', '5.74']]
+        expected = []
+        self.do_table_cell(input, expected, SpecificSeriesResistance)
+
+    def test_series_resistance_disallowed(self):
+        input = [['Dye', 'Rsh (Ω)'], ['N719', '5.74']]
+        expected = []
         self.do_table_cell(input, expected, SpecificSeriesResistance)
 
     def test_specific_charge_transfer_resistance(self):
@@ -848,5 +864,3 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         for record in sentence.records:
             output.append(record.serialize())
         self.assertEqual(output, expected)
-
-    
