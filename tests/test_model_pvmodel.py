@@ -218,6 +218,11 @@ class TestPhotovoltaicCellModelTable(unittest.TestCase):
         expected = []
         self.do_table_cell(input, expected, CounterElectrode)
 
+    def test_counter_electrodes_table_4(self):
+        input = [['Device', 'PCEs'], ['CBSi3N4-1%', '0.71 ± 0.02'], ['CBSi3N4-3%', '0.74 ± 0.01']]
+        expected = []
+        self.do_table_cell(input, expected, CounterElectrode)
+
 
     def test_semiconductor_table(self):
         input = [['Dye', 'Semiconductor'], ['N719', 'TiO2 film, 12µm']]
@@ -835,6 +840,16 @@ class TestPerovskiteCellSentence(unittest.TestCase):
             output.append(record.serialize())
         self.assertEqual(output, expected)
 
+    def test_perovskite_sentence_parser_10(self):
+        text = 'In Fig. S5, we show a cross-sectional SEM image of the samples with the structure of glass/FTO/m-TiO2/MAPbI3/spiro-OMeTAD. '
+        expected = [{'SentencePerovskite': {'raw_value': 'MAPbI3', 'specifier': 'glass /'}}]
+        sentence = Sentence(text )
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
     def test_perovskite_sentence_parser_disallowed_PbI2(self):
         text = 'The perovskite was synthesized using the precursor PbI2 material.'
         expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
@@ -858,6 +873,26 @@ class TestPerovskiteCellSentence(unittest.TestCase):
     def test_perovskite_sentence_parser_disallowed_word_containing_element_2(self):
         text = 'Bilayer of shear-deposited perovskite film on NiOX/ITO/Glass substrate.'
         expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_semiconductor(self):
+        text = 'For CuRPc spin coated on the perovskite, the speed of this decomposition was restrained as confirmed by our UV–Vis absorption spectra, XRD measurements, and photographs of the FTO/SnO2/perovskite/CuRPc.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_semiconductor_with_perovskite_after(self):
+        text = 'We got the perovskite placed on top of SnO2, and the material was CH3NH3PbI3.'
+        expected = [{'SentencePerovskite': {'raw_value': 'CH3NH3PbI3', 'specifier': 'perovskite'}}]
         sentence = Sentence(text)
         sentence.models = [SentencePerovskite]
         output = []

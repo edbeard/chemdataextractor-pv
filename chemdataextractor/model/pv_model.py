@@ -469,7 +469,7 @@ class FillFactor(RatioModel):
 
 
 class PowerConversionEfficiency(RatioModel):
-    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('eff') | I('efficiency') | I('PCES')), required=True, contextual=False, updatable=True)
+    specifier = StringType(parse_expression=(I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES')), required=True, contextual=False, updatable=True)
     parsers = [AutoTableParserOptionalCompound()]
 
 
@@ -498,7 +498,7 @@ class DyeLoading(AmountOfSubstanceDensityModel):
 
 
 class CounterElectrode(BaseModel):
-    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?') + Not(I('type'))).add_action(join) | Not(I('PCE')) + R('CE(s)?') |
+    specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?') + Not(I('type'))).add_action(join) | Not(I('PCE') | I('PCES')) + R('CE(s)?') |
         (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
                                              ), required=True)
     raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
@@ -701,7 +701,8 @@ class SentencePerovskite(BaseModel):
 
     specifier_phrase = ((I('perovskite') | I('sensitizer') | (I('light') + I('harvester')) + Optional('material') | (common_substrates + I('/')) )).add_action(join)
     specifier = StringType(parse_expression=specifier_phrase, required=True, contextual=False)
-    metal_cation_specifier = R('(Pb)|(Sn)|(Sb)|(Bi)|(Ge)')
+    metal_cation_specifier = ( Not(common_semiconductors) + Not(common_redox_couples) + Not(common_etls) + Not(common_htls)
+                               + R('(Pb)|(Sn)|(Sb)|(Bi)|(Ge)')).add_action(join)
     raw_value = StringType(parse_expression=metal_cation_specifier, required=True)
     parsers = [AutoSentenceParserPerovskite()]
 
