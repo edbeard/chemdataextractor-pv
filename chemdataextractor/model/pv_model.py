@@ -30,6 +30,7 @@ from .units.time import TimeModel
 from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not
 from ..parse.actions import join, merge
 from ..parse.cem import strict_chemical_label
+from ..parse.quantity import value_element_plain
 
 from ..model.units.quantity_model import DimensionlessModel
 from ..parse.auto import AutoTableParserOptionalCompound, AutoSentenceParserOptionalCompound, AutoSentenceParserPerovskite
@@ -666,7 +667,7 @@ class SentenceDyeLoading(AmountOfSubstanceDensityModel):
 class Perovskite(BaseModel):
     """Dye Model that identifies from alphanumerics"""
     specifier = StringType(parse_expression=((I('perovskite') | (I('light') + I('harvester')) + Optional('material') )).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')) )| common_perovskites).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk')) )| common_perovskites).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
@@ -676,8 +677,8 @@ class HoleTransportLayer(BaseModel):
         ( I('hole') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer'))) |
           (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
          ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
-    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
+    parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()] #
 
 
 class ElectronTransportLayer(BaseModel):
@@ -689,7 +690,7 @@ class ElectronTransportLayer(BaseModel):
           (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
 
                                               ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
