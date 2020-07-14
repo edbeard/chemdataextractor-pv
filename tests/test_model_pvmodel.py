@@ -626,6 +626,23 @@ class TestPerovskiteCellTable(unittest.TestCase):
         expected = [{'Perovskite': {'specifier': 'perovskite', 'raw_value': 'CH3NH3PbI3'}}]
         self.do_table_cell(input, expected, Perovskite)
 
+    def test_perovskite_cell_table_complex_perovskites(self):
+        input = [['Perovskite', 'Bandgap', 'Device structure', 'Jsc (mA cm−2)'],
+                 ['FASn0.5Pb0.5I3', '', 'Inverted (ETL: PCBM/Bis-C60)', '21.5'],
+                 ['FASn0.5Pb0.5I3 + 20 mol% SnF2', '1.20', 'Inverted (ETL: C60)' '21.9'],
+                 ['FA0.75Cs0.25Sn0.5Pb0.5I3 + 20 mol% SnF2', '1.20', 'Inverted (ETL: C60)', '26.7']]
+        expected = [{'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FASn0.5Pb0.5I3'}},
+                    {'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FASn0.5Pb0.5I3 + 20 mol % SnF2'}},
+                    {'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FA0.75Cs0.25Sn0.5Pb0.5I3 + 20 mol % SnF2'}},
+                    {'PerovskiteSolarCell': {'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '21.5', 'raw_units': '(mAcm−2)', 'value': [21.5], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'perovskite': {'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FASn0.5Pb0.5I3'}}}},
+                    {'PerovskiteSolarCell': {'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '20', 'raw_units': '(mAcm−2)', 'value': [20.0], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'perovskite': {'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FASn0.5Pb0.5I3 + 20 mol % SnF2'}}}},
+                    {'PerovskiteSolarCell': {'jsc': {'ShortCircuitCurrentDensity': {'raw_value': '26.7', 'raw_units': '(mAcm−2)', 'value': [26.7], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}, 'perovskite': {'Perovskite': {'specifier': 'Perovskite', 'raw_value': 'FA0.75Cs0.25Sn0.5Pb0.5I3 + 20 mol % SnF2'}}}},
+                    {'ShortCircuitCurrentDensity': {'raw_value': '21.5', 'raw_units': '(mAcm−2)', 'value': [21.5], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}},
+                    {'ShortCircuitCurrentDensity': {'raw_value': '20', 'raw_units': '(mAcm−2)', 'value': [20.0], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}},
+                    {'ShortCircuitCurrentDensity': {'raw_value': '26.7', 'raw_units': '(mAcm−2)', 'value': [26.7], 'units': '(10^1.0) * Ampere^(1.0)  Meter^(-2.0)', 'specifier': 'Jsc'}}]
+        self.do_table_cell(input, expected, PerovskiteSolarCell)
+
+
     def test_hole_transport_material_table(self):
         input = [['HTM', 'Voc (V)'], ['SpiroOMeTAD', '0.89']]
         expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'SpiroOMeTAD'}}]
