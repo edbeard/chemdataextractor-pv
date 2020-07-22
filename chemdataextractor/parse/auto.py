@@ -696,7 +696,9 @@ class AutoSentenceParserPerovskite(AutoSentenceParserOptionalCompound):
                 raw_value = first(val.xpath('./text()'))
                 test_value = str(raw_value)[-3:]
                 if re.search(end_match, test_value):
-                    if raw_value not in disallowed_perovskites and len(raw_value) > 4:
+                    # Add condition to disallow raw values with 2 or less uppercase letters (to remove perovskite precursors)
+                    if raw_value not in disallowed_perovskites and sum(1 for char in raw_value if char.isupper()) > 2 \
+                            and any(char.isdigit() for char in raw_value) and len(raw_value) > 5:
                         out_raw_values.append(raw_value)
 
             if out_raw_values != []:

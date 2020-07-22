@@ -883,6 +883,66 @@ class TestPerovskiteCellSentence(unittest.TestCase):
             output.append(record.serialize())
         self.assertEqual(output, expected)
 
+    def test_perovskite_sentence_parser_disallowed_precursor_material(self):
+        text = 'The perovskite was synthesized using the precursor PbCl2 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_precursor_material_2(self):
+        text = 'The perovskite was synthesized using the precursor PbBr2 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_precursor_material_3(self):
+        text = 'The perovskite was synthesized using the precursor Bi2S3 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_precursor_material_4(self):
+        text = 'The perovskite was synthesized using the precursor Sb2S3 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_allowed_material(self):
+        text = 'The perovskite was synthesized using the precursor CsSnI3 material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite', 'raw_value': 'CsSnI3'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
+    def test_perovskite_sentence_parser_disallowed_string_that_doesnt_contain_digit(self):
+        text = 'The perovskite was found with the GeneRAlly material.'
+        expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
+        sentence = Sentence(text)
+        sentence.models = [SentencePerovskite]
+        output = []
+        for record in sentence.records:
+            output.append(record.serialize())
+        self.assertEqual(output, expected)
+
     def test_perovskite_sentence_parser_disallowed_word_containing_element(self):
         text = 'Snapshot of shear-deposited perovskite film on NiOX/ITO/Glass substrate.'
         expected = [{'SentencePerovskite': {'specifier': 'perovskite'}}]
