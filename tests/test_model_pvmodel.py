@@ -626,6 +626,31 @@ class TestPerovskiteCellTable(unittest.TestCase):
         expected = [{'Perovskite': {'specifier': 'perovskite', 'raw_value': 'CH3NH3PbI3'}}]
         self.do_table_cell(input, expected, Perovskite)
 
+    def test_perovskite_table(self):
+        input = [['perovskite', 'Voc (V)'], ['forward', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, Perovskite)
+
+    def test_perovskite_table_2(self):
+        input = [['perovskite', 'Voc (V)'], ['Backwards', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, Perovskite)
+
+    def test_perovskite_table_3(self):
+        input = [['perovskite', 'Voc (V)'], ['VOC ⇒ JSC', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, Perovskite)
+
+    def test_perovskite_table_4(self):
+        input = [['perovskite', 'Voc (V)'], ['nanoparticles', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, Perovskite)
+
+    def test_perovskite_table_5(self):
+        input = [['perovskite', 'Voc (V)'], ['anything thats not explictly disallowed', '0.89']]
+        expected = [{'Perovskite': {'specifier': 'perovskite', 'raw_value': 'anything thats not explictly disallowed'}}]
+        self.do_table_cell(input, expected, Perovskite)
+
     def test_perovskite_cell_table_complex_perovskites(self):
         input = [['Perovskite', 'Bandgap', 'Device structure', 'Jsc (mA cm−2)'],
                  ['FASn0.5Pb0.5I3', '', 'Inverted (ETL: PCBM/Bis-C60)', '21.5'],

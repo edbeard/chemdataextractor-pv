@@ -442,6 +442,10 @@ I("zinc") + I("stannate")
 
 common_etls = common_semiconductors | etl_rules
 
+perovskite_blacklist =  (common_semiconductors | common_redox_couples | common_etls | common_htls | R('forward(s)?', re.I) | R('backward(s)?', re.I) |
+                    I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
+                    R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I))
+
 exponent = (Optional(W('×') | W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑-]')) + R('\d'))
 dye_loading_unit = (Optional(W('(')) + exponent + I('mol') + ( (W('/') + R('[cnmk]m2')) | R('[cnmk]m[−-−‒‐‑-]2')) + Optional(W(')')))
 dye_loading_unit_simple = (Optional(W('(')) + R('[cnmk]m[−-−‒‐‑-]2') | ( (W('/') + R('[cnmk]m2'))) + Optional(W(')')))
@@ -667,7 +671,8 @@ class SentenceDyeLoading(AmountOfSubstanceDensityModel):
 class Perovskite(BaseModel):
     """Dye Model that identifies from alphanumerics"""
     specifier = StringType(parse_expression=((I('perovskite') | (I('light') + I('harvester')) + Optional('material') )).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk')) )| common_perovskites).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain())+ Not(perovskite_blacklist) +
+                                              SkipTo(W('sdfkljlk')) )| common_perovskites).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
