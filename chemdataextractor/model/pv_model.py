@@ -502,7 +502,7 @@ class CounterElectrode(BaseModel):
     specifier = StringType(parse_expression=((Optional(I('counter')) + R('[Ee]lectrode(s)?') + Not(I('type'))).add_action(join) | Not(I('PCE') | I('PCES')) + R('CE(s)?') |
         (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
                                              ), required=True)
-    raw_value = StringType(parse_expression=(Start() + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
+    raw_value = StringType(parse_expression=(Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk')) | common_counter_electrodes).add_action(join), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 
