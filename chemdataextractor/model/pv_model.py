@@ -27,7 +27,7 @@ from .units.ratio import RatioModel
 from .units.resistance import ResistanceModel
 from .units.specific_resistance import SpecificResistanceModel
 from .units.time import TimeModel
-from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not
+from ..parse.elements import R, I, Optional, W, Any, Start, SkipTo, Not, FollowedBy
 from ..parse.actions import join, merge
 from ..parse.cem import strict_chemical_label
 from ..parse.quantity import value_element_plain
@@ -279,12 +279,17 @@ common_perovskites = (
     W('CH6I3NPb')
 ).add_action(join)
 
+htl_dopant = ( I('add') | I('added') | I('doped') | I('additive') | I('additives' )| I('added') | I('dopant') | I('dopants')).add_action(join)
+
 common_htls = (
     (I('spiro') + Optional(R('[−−-]')) + (W('OMeTAD') | W('MeOTAD'))) |
     W('PEDOT:PSS') |
     (W('PEDOT') + W(':') + W('PSS')) |
-    (W('Li') + R('[−−-]') + I('TFSI') ) |
-     W('TBP') |
+    # (Start() + Not(SkipTo(htl_dopant)) + SkipTo((W('Li') + Optional(R('[−−-]')).hide() + I('TFSI')) | W('LiTFSI') |I('t') + Optional(R('[−−-]')).hide() + I('BP') | I('TBP')) ) |
+    (Not(htl_dopant) + W('Li') + Optional(R('[−−-]')).hide() + I('TFSI') + Not(SkipTo(htl_dopant)) ) |
+    (Not(htl_dopant) + W('LiTFSI') + Not(SkipTo(htl_dopant))) |
+    ( Not(htl_dopant) + I('t') + Optional(R('[−−-]')).hide() + I('BP') + Not(SkipTo(htl_dopant))) |
+      (Not(htl_dopant)  + I('TBP')  + Not(SkipTo(htl_dopant))) |
     W('CuPc') |
 I("2,2',7,7'-Tetrakis-(N,N-di-4-methoxyphenylamino)-9,9'-spirobifluorene") |
 I("C81H68N4O8") |

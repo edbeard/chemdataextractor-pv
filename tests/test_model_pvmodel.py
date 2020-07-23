@@ -745,6 +745,31 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'raw_value': 'PEDOT : PSS', 'specifier': 'ITO /'}}]
         self.do_sentence(text, expected, HoleTransportLayer)
 
+    def test_hole_transport_layer_sentence_6(self):
+        text = 'A HTL of TBP was used.'
+        expected = [{'HoleTransportLayer': {'raw_value': 'TBP', 'specifier': 'HTL'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_hole_transport_layer_sentence_disallow_dopant(self):
+        text = 'LiTFSI is a widely used p-type dopant for HTLs layers of perovskite solar cells.'
+        expected = [{'HoleTransportLayer': {'specifier': 'HTLs'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_hole_transport_layer_sentence_disallow_dopant_2(self):
+        text = 'LiTFSI dopant is used for HTLs layers of perovskite solar cells.'
+        expected = [{'HoleTransportLayer': {'specifier': 'HTLs'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_hole_transport_layer_sentence_disallow_dopant_3(self):
+        text = 'LiTFSI dopant was added to the HTL spiro-OMeTAD layer of perovskite solar cells.'
+        expected = [{'HoleTransportLayer': {'raw_value': 'spiro - OMeTAD', 'specifier': 'HTL'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
+    def test_hole_transport_layer_sentence_disallow_dopant_4(self):
+        text = 'It has been reported that the lithium bis(tri-fluoromethanesulphonyl)imide (LiTFSI) additive for HTM causes problems.'
+        expected = [{'HoleTransportLayer': {'specifier': 'HTM'}}]
+        self.do_sentence(text, expected, HoleTransportLayer)
+
     def test_electron_transport_layer_sentence(self):
         text = 'Device parameters for MAPbI3 solar cells prepared on an identical TiO2 ETL and capped with a spiro-MeOTAD HTL.'
         expected = [{'ElectronTransportLayer': {'raw_value': 'TiO2', 'specifier': 'ETL'}}]
