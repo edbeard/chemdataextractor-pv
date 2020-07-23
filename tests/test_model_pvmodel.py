@@ -673,6 +673,31 @@ class TestPerovskiteCellTable(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'SpiroOMeTAD'}}]
         self.do_table_cell(input, expected, HoleTransportLayer)
 
+    def test_hole_transport_material_table2(self):
+        input = [['HTM', 'Voc (V)'], ['without', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_hole_transport_material_table3(self):
+        input = [['HTM', 'Voc (V)'], ['nanoparticles', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_hole_transport_material_table4(self):
+        input = [['HTM', 'Voc (V)'], ['average', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_hole_transport_material_table5(self):
+        input = [['HTM', 'Voc (V)'], ['Yes', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_hole_transport_material_table6(self):
+        input = [['HTM', 'Voc (V)'], ['Forward', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, HoleTransportLayer)
+
     def test_hole_transport_material_table_inside_cell(self):
         input = [['Perovskite', 'Device structure', 'Voc (V)'], ['MASnI3 + 20 mol% SnF2', 'Normal/meso ( HTM: PTAA )', '0.89'],
                  ['MASnI3 + 20 mol% SnF2','Normal/meso (no HTM)', '21.4']]

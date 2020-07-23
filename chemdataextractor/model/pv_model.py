@@ -442,9 +442,16 @@ I("zinc") + I("stannate")
 
 common_etls = common_semiconductors | etl_rules
 
-perovskite_blacklist =  (common_semiconductors | common_redox_couples | common_etls | common_htls | R('forward(s)?', re.I) | R('backward(s)?', re.I) |
+perovskite_blacklist =  (common_semiconductors | common_redox_couples | common_etls | common_htls | common_substrates | R('forward(s)?', re.I) | R('backward(s)?', re.I) |
                     I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
                     R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I))
+
+htl_blacklist = (common_semiconductors | common_redox_couples | common_etls | common_perovskites | common_substrates |
+                 common_spectra |R('forward(s)?', re.I) | R('backward(s)?', re.I) |
+                    I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
+                    R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I) | I('single') +I('cell') |
+                    I('[]') | I('module') | I('mesoscopic') | I('average') | I('without') | I('none') | I('nr') | I('no') |
+                    R('nanocrystal(s)?', re.I) | I('best') | I('yes'))
 
 exponent = (Optional(W('×') | W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑-]')) + R('\d'))
 dye_loading_unit = (Optional(W('(')) + exponent + I('mol') + ( (W('/') + R('[cnmk]m2')) | R('[cnmk]m[−-−‒‐‑-]2')) + Optional(W(')')))
@@ -682,7 +689,7 @@ class HoleTransportLayer(BaseModel):
         ( I('hole') + Optional(I('[−−-]')) + (I('conducting') | I('transport') | I('transporting') | I('selective') | I('selection')) + (I('material') | I('layer'))) |
           (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
          ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + Not(htl_blacklist) + SkipTo(W('sdfkljlk'))) | common_htls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()] #
 
 
