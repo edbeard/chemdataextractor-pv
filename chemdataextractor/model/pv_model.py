@@ -62,7 +62,7 @@ common_semiconductors = (
      W('ZnO') | (I('zinc') + I('oxide')) |
      W('NiO') | (I('nickel') + I('oxide')) |
      W('Zn2SnO4') | (I('zinc') + I('stannate')) |
-     W('SnO2') | (I('tin') + I('oxide'))
+     W('SnO2') | (I('tin') + I('dioxide'))
      ) + Optional(I('film')).hide() + Optional(I('anode')).hide()
 ).add_action(join)
 
@@ -406,12 +406,12 @@ I("nickel") + I("oxide") |
 I("NiO") |
 I("zirconium") + I("dioxide") |
 I("ZrO2") |
-I("poly(triarylamine)") |
-I("PTAA") |
-I("phenyl-C61-butyric") + I("acid") + I("methyl") + I("ester") |
-I("PCBM") |
-I('PC60BM') |
-I('PC61BM') |
+# I("poly(triarylamine)") |
+# I("PTAA") |
+# I("phenyl-C61-butyric") + I("acid") + I("methyl") + I("ester") |
+# I("PCBM") |
+# I('PC60BM') |
+# I('PC61BM') |
 I("m-TiO2") |
 I("mesoporous") + I("titanium") + I("dioxide") |
 I("c-TiO2") |
@@ -425,10 +425,10 @@ I("np-TiO2") |
 I("titanium") + I("dioxide") + I("nanoparticles") |
 I("TiO2") + I("nanoparticles") |
 I("Al2O3") + I("/") + I("ZnO") |
-I("ITO") + I("/") + I("ZnO") |
-I("ITO") + I("/") + I("Al2O3") |
-I("ITO") + I("/") + I("V2O5") |
-I("ITO") + I("/") + I("TiO2") |
+# I("ITO") + I("/") + I("ZnO") |
+# I("ITO") + I("/") + I("Al2O3") |
+# I("ITO") + I("/") + I("V2O5") |
+# I("ITO") + I("/") + I("TiO2") |
 I("aluminum") + I("doped") + I("zinc") + I("oxide") |
 I("AZO") |
 I("ZnO:Al") |
@@ -449,14 +449,23 @@ common_etls = common_semiconductors | etl_rules
 
 perovskite_blacklist =  (common_semiconductors | common_redox_couples | common_etls | common_htls | common_substrates | R('forward(s)?', re.I) | R('backward(s)?', re.I) |
                     I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
-                    R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I))
+                    R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I)) | I('reverse')
 
 htl_blacklist = (common_semiconductors | common_redox_couples | common_etls | common_perovskites | common_substrates |
-                 common_spectra |R('forward(s)?', re.I) | R('backward(s)?', re.I) |
+                 common_spectra |R('forward(s)?', re.I) | R('backward(s)?', re.I) | I('reverse') |
                     I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
                     R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I) | I('single') +I('cell') |
                     I('[]') | I('module') | I('mesoscopic') | I('average') | I('without') | I('none') | I('nr') | I('no') |
                     R('nanocrystal(s)?', re.I) | I('best') | I('yes'))
+
+etl_blacklist = (common_semiconductors | common_redox_couples | common_htls | common_perovskites | common_substrates |
+                 common_spectra |R('forward(s)?', re.I) | R('backward(s)?', re.I) | I('reverse') |
+                    I('Voc') | I('Jsc') | I('Isc') | I('FF') | I('PCE') | I('η') | I('Ƞ') | I('eff') | I('efficiency') | I('PCES') |
+                    R('R[Ss]') | R('R[(ct)(CT)]\d?') | I('step') | R('nanoparticle(s)?', re.I) | I('single') +I('cell') |
+                    I('[]') | I('module') | I('mesoscopic') | I('average') | I('without') | I('none') | I('nr') | I('no') |
+                    R('nanocrystal(s)?', re.I) | I('best') | I('yes') | I('ospd') | R('perovskite(s)?', re.I) | I('dsvd') |
+                    I('champion') | I('junction') | I('cvd') | I ('ct')
+                 )
 
 exponent = (Optional(W('×') | W('×')).hide() + W('10').hide() + Optional(R('[−-−‒‐‑-]')) + R('\d'))
 dye_loading_unit = (Optional(W('(')) + exponent + I('mol') + ( (W('/') + R('[cnmk]m2')) | R('[cnmk]m[−-−‒‐‑-]2')) + Optional(W(')')))
@@ -707,7 +716,7 @@ class ElectronTransportLayer(BaseModel):
           (common_substrates + I('/')) # Specifier for ITO/ETL/perovskite/HTL/counter electrode format
 
                                               ).add_action(join), required=True, contextual=False)
-    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
+    raw_value = StringType(parse_expression=(((Start() + Not(value_element_plain()) + Not(etl_blacklist) + SkipTo(W('sdfkljlk')))| common_etls).add_action(join)), required=True)
     parsers = [AutoTableParserOptionalCompound(), AutoSentenceParserOptionalCompound()]
 
 

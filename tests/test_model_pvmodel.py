@@ -704,10 +704,50 @@ class TestPerovskiteCellTable(unittest.TestCase):
         expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'PTAA'}}]
         self.do_table_cell(input, expected, HoleTransportLayer)
 
-    def test_electron_transporting_material_table(self):
+    def test_hole_transporting_material_table(self):
         input = [['HTM', 'Voc (V)'], ['Spiro-OMeTAD', '0.89']]
         expected = [{'HoleTransportLayer': {'specifier': 'HTM', 'raw_value': 'Spiro - OMeTAD'}}]
         self.do_table_cell(input, expected, HoleTransportLayer)
+
+    def test_electron_transport_material_table1(self):
+        input = [['ETL', 'Voc (V)'], ['Forward', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table2(self):
+        input = [['ETL', 'Voc (V)'], ['nanoparticles', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table3(self):
+        input = [['ETL', 'Voc (V)'], ['single cell', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table4(self):
+        input = [['ETL', 'Voc (V)'], ['AM1.5G', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table5(self):
+        input = [['ETL', 'Voc (V)'], ['Voc', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table6(self):
+        input = [['ETL', 'Voc (V)'], ['[]', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table7(self):
+        input = [['ETL', 'Voc (V)'], ['OSPD', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
+
+    def test_electron_transport_material_table8(self):
+        input = [['ETL', 'Voc (V)'], ['cvd', '0.89']]
+        expected = []
+        self.do_table_cell(input, expected, ElectronTransportLayer)
 
 
 class TestPerovskiteCellSentence(unittest.TestCase):
@@ -785,9 +825,9 @@ class TestPerovskiteCellSentence(unittest.TestCase):
         expected = [{'ElectronTransportLayer': {'raw_value': 'SnO2', 'specifier': 'ITO /'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
-    def test_electron_transport_layer_sentence_4(self):
-        text = 'Fig. 1c and d show the J–V characteristics of the two (representative) devices fabricated using PCBM as EELs, before and after light soaking. '
-        expected = [{'ElectronTransportLayer': {'raw_value': 'PCBM', 'specifier': 'EELs'}}]
+    def test_electron_transport_layer_sentence_disallow(self):
+        text = 'The ETL was placed on the device containing PTAA. '
+        expected = [{'ElectronTransportLayer': {'specifier': 'ETL'}}]
         self.do_sentence(text, expected, ElectronTransportLayer)
 
     def test_active_area_and_counter_electrode(self):
